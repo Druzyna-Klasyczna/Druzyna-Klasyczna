@@ -1,8 +1,8 @@
-from card import QuestionCard
+from card import QuestionCard, PowerUpCard, PowerUpType
 
 class GamePlayer:
     def __init__(self, pid, config):
-        self.cards = [QuestionCard("kto napisał 1984?", ['Fagata', 'George Orwell', 'Jan Kochanowski', 'Królowa Elżbieta'], 1)]
+        self.cards = [QuestionCard("kto napisał 1984?", ['Fagata', 'George Orwell', 'Jan Kochanowski', 'Królowa Elżbieta'], 1), PowerUpCard(PowerUpType.MIRROR)]
         self.id = pid
     
     def add_card(self, card):
