@@ -19,11 +19,11 @@ app.include_router(ws_router)
 
 
 class CreateRoomRequest(BaseModel):
-    user_id: str
+    user_name: str
 
 @app.post("/create-room")
 async def create_room_endpoint(request: CreateRoomRequest):
-    data = lobby_manager.create_room(creator_name=request.user_id)
+    data = lobby_manager.create_room(creator_name=request.user_name)
     return data
 
 @app.get("/validate/{code}")
@@ -42,11 +42,11 @@ async def get_room_info(join_code: str):
 
 
 class JoinRoomRequest(BaseModel):
-    player_name: str
+    user_name: str
 
 @app.post("/room/{join_code}/join")
 async def join_room_endpoint(join_code: str, request: JoinRoomRequest):
-    player_id = lobby_manager.add_player_to_room(join_code, request.player_name)
+    player_id = lobby_manager.add_player_to_room(join_code, request.user_name)
     if player_id:
         return {"status": "joined", "player_id": player_id}
     return {"error": "Room not found"}, 404
