@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePageWithSync";
 import { Lobby } from "./pages/Lobby";
 
 function App() {

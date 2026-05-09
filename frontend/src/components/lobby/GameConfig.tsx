@@ -2,7 +2,11 @@ import { TactileButton } from "../TactileButton";
 import { TactileContainer } from "../TactileContainer";
 import { SessionCode } from "./SessionCode";
 
-export const GameConfig = () => {
+type GameConfigProps = {
+    sessionCode: string;
+};
+
+export const GameConfig = ({ sessionCode }: GameConfigProps) => {
     const inputStyle =
         "w-full bg-black border-2 border-white/20 text-yellow-400 p-3 font-black italic uppercase outline-none focus:border-yellow-400 transition-colors";
     const labelStyle = "text-white font-black italic uppercase text-xs mb-1";
@@ -11,7 +15,7 @@ export const GameConfig = () => {
         <div className="h-full flex flex-col justify-between">
             <div className="p-2">
                 <TactileContainer>
-                    <SessionCode code="1234"></SessionCode>
+                    <SessionCode code={sessionCode}></SessionCode>
                 </TactileContainer>
             </div>
             <div className="flex flex-col gap-8 p-2">

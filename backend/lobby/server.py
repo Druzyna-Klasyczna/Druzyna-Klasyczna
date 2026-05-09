@@ -46,7 +46,7 @@ class JoinRoomRequest(BaseModel):
 
 @app.post("/room/{join_code}/join")
 async def join_room_endpoint(join_code: str, request: JoinRoomRequest):
-    player_id = lobby_manager.add_player_to_room(join_code, request.user_name)
+    player_id = lobby_manager.add_player_to_room(join_code, request.user_name,is_host=False)
     if player_id:
         return {"status": "joined", "player_id": player_id}
     return {"error": "Room not found"}, 404

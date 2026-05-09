@@ -35,11 +35,11 @@ class RoomManager:
     def get_room(self, join_code: str) -> Optional[Room]:
         return self.active_rooms.get(join_code.upper().strip())
 
-    def add_player_to_room(self, join_code: str, player_name: str) -> Optional[str]:
+    def add_player_to_room(self, join_code: str, player_name: str, is_host: bool) -> Optional[str]:
         room = self.get_room(join_code)
         if room and room.status == "waiting":
             p_id = str(uuid.uuid4())
-            room.players[p_id] = Player(player_id=p_id, name=player_name)
+            room.players[p_id] = Player(player_id=p_id,name=player_name,is_ready=False,is_host=is_host)
             return p_id
         return None
 
@@ -70,7 +70,8 @@ class RoomManager:
         room = self.get_room(room_code)
         if not room or player_id not in room.players: return False
         
-        if requesting_host_id: # Logika Kicka
+        if requesting_host_id:
+            # host id does not exists or is not host
             if not room.players.get(requesting_host_id) or not room.players[requesting_host_id].is_host:
                 return False
 

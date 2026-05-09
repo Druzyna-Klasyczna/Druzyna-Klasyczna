@@ -32,6 +32,8 @@ function HomePage() {
         roomCode.toUpperCase(),
         userName,
       );
+      console.log("Data received from room join")
+      console.log(data)
       // Przerzucasz gracza i przekazujesz pałeczkę koledze!
       navigate(`/lobby?code=${roomCode.toUpperCase()}&id=${data.player_id}`);
     } catch (err) {
