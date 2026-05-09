@@ -1,12 +1,14 @@
-import "./App.css";
-import { Lobby } from "./pages/Lobby";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 
 function App() {
-    return (
-        <>
-            <Lobby></Lobby>
-        </>
-    );
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
