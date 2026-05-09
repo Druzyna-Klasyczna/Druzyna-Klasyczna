@@ -5,7 +5,7 @@ export const DeckPreview = () => {
     return (
         <div className="flex flex-col items-center justify-around h-full py-4 w-full">
             <div className="flex items-center gap-6">
-                <TactileButton variant="small" color="blue" className="px-2">
+                <TactileButton size="sm" color="blue">
                     <ChevronLeft size={24} />
                 </TactileButton>
 
@@ -17,12 +17,12 @@ export const DeckPreview = () => {
                     </span>
                 </div>
 
-                <TactileButton variant="small" color="blue" className="px-2">
+                <TactileButton size="sm" color="blue">
                     <ChevronRight size={24} />
                 </TactileButton>
             </div>
 
-            <TactileButton variant="small" color="yellow" className="w-3/4">
+            <TactileButton size="sm" color="yellow">
                 <Import size={16} className="mr-2" /> Importuj Deck
             </TactileButton>
         </div>
