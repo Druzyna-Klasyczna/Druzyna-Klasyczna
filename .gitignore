@@ -1,1 +1,4 @@
 .venv/
+make_rag.py
+project_rag.md
+__pycache__/
