@@ -1,55 +1,50 @@
 import { useState } from "react";
-import { StartButton } from "../components/StartButton"
+import { StartButton } from "../components/StartButton";
+import { TactileContainer } from "../components/TactileContainer";
 
 function HomePage() {
-  // Stan kontrolujący, który widok pokazujemy
-  const [isJoining, setIsJoining] = useState(false);
-  // Stan przechowujący to, co użytkownik wpisze w input
-  const [roomCode, setRoomCode] = useState("");
+    const [isJoining, setIsJoining] = useState(false);
+    const [roomCode, setRoomCode] = useState("");
 
-  return (
-    <div className="flex flex-col items-center pt-32 h-screen bg-white">
-      
-      <h1 className="text-6xl font-bold text-black mb-24 transition-all duration-300">
-        Card Clash
-      </h1>
+    return (
+        <div className="flex flex-col items-center justify-center h-screen bg-white">
+            <h1 className="text-6xl font-bold text-black mb-20">Card Clash</h1>
 
-      {/* Kontener z czarną ramką - dodałem min-h, żeby ramka nie skakała przy zmianie zawartości */}
-      <div className="flex flex-row gap-8 border-4 border-black p-8 rounded-xl min-h-[160px] items-center justify-center transition-all duration-300">
-        
-        {!isJoining ? (
-          // WIDOK 1: PODSTAWOWE GUZIKI
-          <>
-            <StartButton href="/admin-panel" name="Host" />
-            <StartButton onClick={() => setIsJoining(true)} name="Join" />
-          </>
-        ) : (
-          // WIDOK 2: POLE DO WPISANIA KODU
-          <div className="flex flex-row gap-4 animate-fade-in items-center">
-            <input 
-              type="text" 
-              placeholder="Enter Room Code" 
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value)}
-              className="border-4 border-black rounded-lg px-6 py-6 text-2xl font-bold outline-none focus:bg-yellow-100 uppercase w-72 text-black placeholder-gray-600"
-            />
-            {/* Ten guzik przenosi już do właściwego lobby z kodem z inputa */}
-            <StartButton href={`/lobby?code=${roomCode}`} name="Go!" />
-            
-            {/* Guzik powrotu do poprzedniego widoku */}
-            <button 
-              onClick={() => setIsJoining(false)}
-              className="text-black font-bold text-xl underline hover:text-gray-600 ml-4"
-            >
-              Back
-            </button>
-          </div>
-        )}
+            <TactileContainer className="flex flex-col items-center gap-6 p-8">
+                {!isJoining ? (
+                    <>
+                        <StartButton href="/admin-panel" name="Host" />
+                        <StartButton
+                            onClick={() => setIsJoining(true)}
+                            name="Join"
+                        />
+                    </>
+                ) : (
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Enter Room Code"
+                            value={roomCode}
+                            onChange={(e) => setRoomCode(e.target.value)}
+                            className="border-4 border-black px-6 py-4 text-xl font-bold uppercase w-72 text-black focus:bg-yellow-100 outline-none"
+                        />
 
-      </div>
-      
-    </div>
-  )
+                        <StartButton
+                            href={`/lobby?code=${roomCode}`}
+                            name="Go!"
+                        />
+
+                        <button
+                            onClick={() => setIsJoining(false)}
+                            className="text-black font-bold underline hover:text-gray-600"
+                        >
+                            Back
+                        </button>
+                    </>
+                )}
+            </TactileContainer>
+        </div>
+    );
 }
 
-export default HomePage
+export default HomePage;
