@@ -33,8 +33,9 @@ class GameEngine:
         self.deal_cards()
 
     def deal_cards(self):
-        for card_index in range(self.config.initial_deal_cards * len(self.players)):
-            player = self.players[card_index % len(self.players)]
+        for loop_index in range(self.config.initial_deal_cards * len(self.players)):
+            player_index = loop_index % len(self.players)
+            player = self.players[player_index]
             player.add_card(self.draw_pile.pop_card())
 
     def play_turn(self, player):
