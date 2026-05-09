@@ -1,3 +1,6 @@
 class GamePlayer:
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.cards = []
+    
+    def add_card(self, card):
+        self.cards.append(card)
