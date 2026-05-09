@@ -1,76 +1,82 @@
 import uuid
 import secrets
 import string
-from typing import Optional, List
+from typing import Optional, List, Dict
+from fastapi import WebSocket
+from .models import Room, Player
 
 class RoomManager:
     def __init__(self, base_url: str):
-        """
-        :param base_url: The frontend URL (e.g., "https://myapp.com")
-        """
         self.base_url = base_url.rstrip('/')
-        # In a real app, these would be stored in Redis or a Database
-        self.active_rooms = {} 
+        self.active_rooms: Dict[str, Room] = {} 
+        self.active_connections: Dict[str, WebSocket] = {}
 
     def generate_join_code(self, length=6) -> str:
-        """Generates a short, uppercase alphanumeric code (e.g., 4F2A9X)"""
         chars = string.ascii_uppercase + string.digits
         return ''.join(secrets.choice(chars) for _ in range(length))
 
-    def get_room_data(self, room_id: str):
-        print(f"give room id: {room_id}, {type(room_id)}")
-        print(self.active_rooms)
-        result = self.active_rooms.get(room_id,None)
-        return result
-
-    def create_room(self, creator_id: str):
-        """
-        Initializes a new room and returns the metadata.
-        """
-        room_id = str(uuid.uuid4())
+    def create_room(self, creator_name: str):
         join_code = self.generate_join_code()
+        host_id = str(uuid.uuid4())
         
-        # The URL the user will share
-        invite_url = f"{self.base_url}/join/{join_code}"
-    
-        room_data = {
-            "room_id": room_id,
+        host = Player(player_id=host_id, name=creator_name, is_ready=True, is_host=True)
+        room_data = Room(room_code=join_code, players={host_id: host})
+
+        self.active_rooms[join_code] = room_data
+        
+        return {
+            "room_id": str(uuid.uuid4()),
             "join_code": join_code,
-            "invite_url": invite_url,
-            "creator_id": creator_id,
-            "status": "active",
-            "players": []
+            "invite_url": f"{self.base_url}/join/{join_code}",
+            "host_id": host_id,
+            "status": "active"
         }
 
-        # Save to your "database"
-        self.active_rooms[join_code] = room_data
-        return room_data
+    def get_room(self, join_code: str) -> Optional[Room]:
+        return self.active_rooms.get(join_code.upper().strip())
 
-    def validate_room(self, join_code: str) -> Optional[dict]:
-        """
-        Checks if a code exists and returns the room data.
-        """
-        code = join_code.upper().strip()
-        return self.active_rooms.get(code)
-    
-    def add_player_to_room(self, join_code: str, player_id: str) -> bool:
-        """Adds a player to the room list if they aren't already there."""
-        room = self.validate_room(join_code)
-        if room:
-            if player_id not in room["players"]:
-                room["players"].append(player_id)
+    def add_player_to_room(self, join_code: str, player_name: str) -> Optional[str]:
+        room = self.get_room(join_code)
+        if room and room.status == "waiting":
+            p_id = str(uuid.uuid4())
+            room.players[p_id] = Player(player_id=p_id, name=player_name)
+            return p_id
+        return None
+
+
+    async def broadcast_to_room(self, room_code: str, message: dict):
+        room = self.get_room(room_code)
+        if not room: return
+        for p_id in room.players.keys():
+            ws = self.active_connections.get(p_id)
+            if ws:
+                await ws.send_json(message)
+
+    def toggle_ready(self, room_code: str, player_id: str) -> bool:
+        room = self.get_room(room_code)
+        if room and player_id in room.players:
+            room.players[player_id].is_ready = not room.players[player_id].is_ready
             return True
         return False
 
-    def get_room_players(self, join_code: str) -> Optional[List[str]]:
-        """Returns the list of players for a specific room."""
-        room = self.validate_room(join_code)
-        print(room)
-        return room.get("players") if room else None 
+    def update_settings(self, room_code: str, player_id: str, payload: dict) -> bool:
+        room = self.get_room(room_code)
+        if room and room.players.get(player_id) and room.players[player_id].is_host:
+            # Tu możesz dodać np. room.settings.deck_id = payload.get('deck_id')
+            return True
+        return False
 
-# --- Usage Example ---
-manager = RoomManager(base_url="https://play.coolgame.com")
-new_room = manager.create_room(creator_id="user_123")
+    def remove_player(self, room_code: str, player_id: str, requesting_host_id: str = None) -> bool:
+        room = self.get_room(room_code)
+        if not room or player_id not in room.players: return False
+        
+        if requesting_host_id: # Logika Kicka
+            if not room.players.get(requesting_host_id) or not room.players[requesting_host_id].is_host:
+                return False
 
-print(f"Join Code: {new_room['join_code']}")
-print(f"URL: {new_room['invite_url']}")
+        del room.players[player_id]
+        if len(room.players) == 0:
+            del self.active_rooms[room_code]
+        return True
+
+lobby_manager = RoomManager(base_url="http://localhost:5173")
