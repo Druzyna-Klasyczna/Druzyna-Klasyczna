@@ -53,9 +53,18 @@ class QuestionCard(Card):
         self.question = question
         self.answers = answers
         self.correct = correct
+        self.debuff = None
     
     def get_card_type(self):
         return CardType.QUESTION
     
     def validate_answer(self, submitted_answer):
         return submitted_answer == self.correct
+    
+    def set_debuff(self, card):
+        self.debuff = card
+    
+    def get_debuff(self):
+        if self.debuff is None:
+            return None
+        return self.debuff.debuff_type

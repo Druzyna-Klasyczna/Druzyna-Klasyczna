@@ -12,6 +12,9 @@ class Deck:
         if len(self.cards) == 0:
             raise DrawPileEmptyException("pop from empty pile")
         return self.cards.pop()
+    
+    def is_empty(self):
+        return len(self.cards) == 0
 
     def shuffle_cards(self):
         random.shuffle(self.cards)

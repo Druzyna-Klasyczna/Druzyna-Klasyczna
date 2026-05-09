@@ -1,7 +1,7 @@
 from player import GamePlayer
 from deck import Deck
 from input_provider import ConsoleInputProvider
-from card import QuestionCard, CardType
+from card import QuestionCard, CardType, PowerUpType
 from game_exceptions import WrongCardException
 
 class RoomSettingsMock:
@@ -39,6 +39,7 @@ class GameEngine:
 
             # question reponse 
             if self.played_card is not None:
+                print("POWER-UP")
                 powerup_card = self.get_player_card_from_input(player)
                 if powerup_card is None:
                     answer_index = self.prompt_answer(player).answer_index
@@ -46,18 +47,27 @@ class GameEngine:
                     self.discard_pile.push_card(self.played_card)
                     self.played_card = None
                 else:
-                    self.process_powerup(powerup_card, player)
+                    should_continue = self.process_powerup(powerup_card, player)
+                    if should_continue:
+                        continue
 
+            print("EFFECT")
             effect_card = self.get_player_card_from_input(player)
             if effect_card is not None:
                 self.process_effect(effect_card, player)
 
+            print("QUESTION")
             question_card = self.get_player_card_from_input(player)
             self.process_question(question_card, player)
 
+            print("DEBUFF")
             debuff_card = self.get_player_card_from_input(player)
             if debuff_card is not None:
                 self.process_debuff(debuff_card, player)
+            
+            if not self.draw_pile.is_empty():
+                drawn_card = self.draw_pile.pop_card()
+                player.add_card(drawn_card)
 
     def init_game(self):
         self.shuffle_cards()
@@ -76,19 +86,23 @@ class GameEngine:
     
     def process_answer(self, answer_index, player):
         if self.played_card.validate_answer(answer_index-1):
-            self.correct_answer(player)
+            self.correct_answer(self.played_card, player)
         else:
-            self.incorrect_answer(player)
+            self.incorrect_answer(self.played_card, player)
     
-    def correct_answer(self, player):
+    def correct_answer(self, card, player):
         print("Correct!")
 
-    def incorrect_answer(self, player):
+    def incorrect_answer(self, card, player):
         # kara 
         print("Incorrect!")
     
     def process_powerup(self, card, player):
-        pass
+        # ! DON'T USE THIS, IT'S INCOMPLETE
+        if card.get_card_type() != CardType.POWER_UP:
+            raise WrongCardException("card should be of type: power-up")
+        
+        player.remove_card(card)
     
     def process_effect(self, card, player):
         pass
@@ -98,7 +112,7 @@ class GameEngine:
             raise WrongCardException("card should be of type: question")
         
         self.played_card = card
-        player.cards.remove(card)
+        player.remove_card(card)
 
     def process_debuff(self, card, player):
         pass
