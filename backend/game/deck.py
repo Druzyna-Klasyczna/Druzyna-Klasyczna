@@ -4,6 +4,9 @@ from game_exceptions import DrawPileEmptyException
 class Deck:
     def __init__(self):
         self.cards = [1,2,3,4]*10 # ! hardcoded for now
+    
+    def push_card(self, card):
+        self.cards.append(card)
 
     def pop_card(self):
         if len(self.cards) == 0:
