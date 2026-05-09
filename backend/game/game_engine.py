@@ -29,8 +29,11 @@ class GameEngine:
             pass # play card
     
     def init_game(self):
-        self.draw_pile.shuffle_cards()
+        self.shuffle_cards()
         self.deal_cards()
+    
+    def shuffle_cards():
+        self.draw_pile.shuffle_cards()
 
     def deal_cards(self):
         for loop_index in range(self.config.initial_deal_cards * len(self.players)):
