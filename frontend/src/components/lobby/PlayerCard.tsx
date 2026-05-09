@@ -90,17 +90,13 @@ const PlayerCard = ({
                     {" "}
                     {/* Dodaj margines dla ścianek przycisków */}
                     {isMe ? (
-                        <TactileButton
-                            variant="small"
-                            color="red"
-                            onClick={onLeave}
-                        >
+                        <TactileButton size="sm" color="red" onClick={onLeave}>
                             <LogOut size={14} /> Wyjdź
                         </TactileButton>
                     ) : (
                         canKick && (
                             <TactileButton
-                                variant="small"
+                                size="sm"
                                 color="red"
                                 onClick={onKick}
                             >
