@@ -25,3 +25,7 @@ class EffectCard(Card):
 class DebuffCard(Card):
     def __init__(self):
         pass
+
+class QuestionCard(Card):
+    def __init__(self):
+        pass
