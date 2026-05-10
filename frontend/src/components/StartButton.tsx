@@ -1,45 +1,24 @@
 import { Link } from "react-router-dom";
 import { TactileButton } from "./TactileButton";
 
-export interface ButtonProps {
-    href?: string;
-    name: string;
-    size?: "sm" | "md" | "lg" | "xl"; // Już tu jest, super
-    onClick?: () => void;
+interface StartButtonProps {
+  name: string;
+  href?: string;
+  onClick?: () => void;
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-// 1. Dodajemy 'size' do argumentów (destrukturyzacja)
-// 2. Ustawiamy domyślną wartość (np. "lg"), żeby przycisk nie był malutki bez podania rozmiaru
 export const StartButton = ({
-    href,
-    name,
-    onClick,
-    size = "xl",
-}: ButtonProps) => {
-    const baseStyles = "";
+  name,
+  href,
+  onClick,
+  size = "xl",
+}: StartButtonProps) => {
+  const button = (
+    <TactileButton color="yellow" size={size} onClick={onClick}>
+      {name}
+    </TactileButton>
+  );
 
-    if (href) {
-        return (
-            <Link to={href} className={baseStyles}>
-                {/* Jeśli Link też ma wyglądać jak TactileButton, 
-                   powinieneś go nim owinąć lub użyć as={Link} 
-                   (zależy od implementacji TactileButton) 
-                */}
-                <TactileButton color="yellow" size={size}>
-                    {name}
-                </TactileButton>
-            </Link>
-        );
-    }
-
-    return (
-        <TactileButton
-            color="yellow"
-            size={size} // <--- Teraz size jest przekazywane tutaj
-            onClick={onClick}
-            className={baseStyles}
-        >
-            {name}
-        </TactileButton>
-    );
+  return href ? <Link to={href}>{button}</Link> : button;
 };
