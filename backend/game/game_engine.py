@@ -117,7 +117,7 @@ class GameEngine:
         return self.input_provider.answer_question(self.played_card, player)
     
     def process_answer(self, answer_index, player):
-        if self.played_card.validate_answer(answer_index-1):
+        if self.played_card.validate_answer(answer_index):
             self.correct_answer(self.played_card, player)
         else:
             self.incorrect_answer(self.played_card, player)
