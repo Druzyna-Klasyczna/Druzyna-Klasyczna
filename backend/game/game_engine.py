@@ -93,7 +93,6 @@ class GameEngine:
             self.process_powerup_card(powerup_card, player)
     
     def process_powerup_card(self, card, player):
-        # ! DON'T USE THIS, IT'S INCOMPLETE
         if card.get_card_type() != CardType.POWER_UP:
             raise WrongCardException("card should be of type: power-up")
         
