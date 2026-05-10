@@ -62,7 +62,11 @@ class GameEngine:
         for loop_index in range(initial_cards * len(self.players)):
             player_index = loop_index % len(self.players)
             player = self.players[player_index]
-            player.add_card(self.draw_pile.pop_card())
+            player.add_card(self.question_draw_pile.pop_card())
+        
+        for player in self.players:
+            player.add_card(self.special_draw_pile.pop_card())
+
 
     async def sync_private_hands(self):
         for player in self.players:
