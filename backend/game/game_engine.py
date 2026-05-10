@@ -25,7 +25,7 @@ class GameEngine:
 
         self.event_queue = deque([])
 
-        self.draw_pile = self.get_deck(room)
+        self.question_draw_pile, self.special_draw_pile = self.get_deck(room)
         self.discard_pile = Deck() # for now, maybe separate class later?
         self.played_card = None
 
@@ -33,7 +33,7 @@ class GameEngine:
     
     def get_deck(self, room):
         # TODO: fetch deck from db
-        return Deck()
+        return Deck(), Deck()
 
     def run(self):
         self.init_game()
@@ -48,13 +48,17 @@ class GameEngine:
         self.add_initial_events()
     
     def shuffle_cards(self):
-        self.draw_pile.shuffle_cards()
+        self.question_draw_pile.shuffle_cards()
+        self.special_draw_pile.shuffle_cards()
 
     def deal_cards(self):
         for loop_index in range(self.config.initial_deal_cards * len(self.players)):
             player_index = loop_index % len(self.players)
             player = self.players[player_index]
-            player.add_card(self.draw_pile.pop_card())
+            player.add_card(self.question_draw_pile.pop_card())
+        
+        for player in self.players:
+            player.add_card(self.special_draw_pile.pop_card())
     
     def add_initial_events(self):
         self.add_event(self.players[0], EventType.EFFECT)
