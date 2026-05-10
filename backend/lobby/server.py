@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .RoomManager import lobby_manager
+import db.database as db
 
 app = FastAPI()
 
@@ -17,6 +18,9 @@ app.add_middleware(
 
 app.include_router(ws_router)
 
+@app.get("/debug/get-questions")
+def get_questions():
+    return db.fetch_all_questions()
 
 class CreateRoomRequest(BaseModel):
     user_name: str
