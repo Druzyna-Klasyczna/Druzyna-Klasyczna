@@ -46,121 +46,121 @@ def add_questions(conn):
 
     questions = [
 
-        ("OOP important for?", "Games", "Enterprise apps", "Only AI", "Only CLI", "b"),
+        ("Do czego ważne jest OOP?", "Gier", "Aplikacji firmowych", "Tylko AI", "Tylko CLI", "b"),
 
-        ("OOP improves?", "Scalability", "Lag", "Ads", "Storage", "a"),
+        ("OOP poprawia?", "Skalowalność", "Lagi", "Reklamy", "Pamięć", "a"),
 
-        ("OOP helps?", "Code organization", "Crashes", "Delays", "Viruses", "a"),
+        ("OOP pomaga w?", "Organizacji kodu", "Awariach", "Opóźnieniach", "Wirusach", "a"),
 
-        ("Encapsulation bundles?", "Data+Methods", "Files", "Loops", "Threads", "a"),
+        ("Hermetyzacja łączy?", "Dane + metody", "Pliki", "Pętle", "Wątki", "a"),
 
-        ("Private attribute symbol in Python?", "__", "//", "##", "@@", "a"),
+        ("Symbol prywatnego atrybutu w Pythonie?", "__", "//", "##", "@@", "a"),
 
-        ("BankAccount balance is?", "Public", "Protected", "Private", "Static", "c"),
+        ("Pole BankAccount.balance jest?", "Publiczne", "Chronione", "Prywatne", "Statyczne", "c"),
 
-        ("Inheritance promotes?", "Duplication", "Reuse", "Deletion", "Encryption", "b"),
+        ("Dziedziczenie sprzyja?", "Duplikacji", "Reużyciu kodu", "Usuwaniu", "Szyfrowaniu", "b"),
 
-        ("Polymorphism means?", "One form", "Many forms", "No forms", "Static only", "b"),
+        ("Polimorfizm oznacza?", "Jedna forma", "Wiele form", "Brak form", "Tylko statyczna", "b"),
 
-        ("Pure virtual function?", "Abstract method", "Loop", "Constructor", "Array", "a"),
+        ("Czysta funkcja wirtualna to?", "Metoda abstrakcyjna", "Pętla", "Konstruktor", "Tablica", "a"),
 
-        ("Circle overrides?", "area()", "main()", "start()", "stop()", "a"),
+        ("Klasa Circle nadpisuje?", "area()", "main()", "start()", "stop()", "a"),
 
-        ("Abstraction hides?", "Implementation", "Variables", "Loops", "Classes", "a"),
+        ("Abstrakcja ukrywa?", "Implementację", "Zmienne", "Pętle", "Klasy", "a"),
 
-        ("ABC in Python means?", "Abstract Base Class", "Array Base Code", "Auto Build Class", "App Byte Compiler", "a"),
+        ("ABC w Pythonie znaczy?", "Abstract Base Class", "Array Base Code", "Auto Build Class", "App Byte Compiler", "a"),
 
-        ("Vehicle class type?", "Abstract", "Final", "Static", "Private", "a"),
+        ("Typ klasy Vehicle?", "Abstrakcyjna", "Final", "Statyczna", "Prywatna", "a"),
 
-        ("Class is?", "Blueprint", "Object", "Memory", "Thread", "a"),
+        ("Klasa to?", "Schemat (blueprint)", "Obiekt", "Pamięć", "Wątek", "a"),
 
-        ("Object is?", "Class instance", "Method", "Package", "Library", "a"),
+        ("Obiekt to?", "Instancja klasy", "Metoda", "Pakiet", "Biblioteka", "a"),
 
-        ("Employee('John') creates?", "Class", "Object", "Function", "Module", "b"),
+        ("Employee('John') tworzy?", "Klasę", "Obiekt", "Funkcję", "Moduł", "b"),
 
-        ("Overloading uses?", "Different params", "Different files", "Threads", "Packages", "a"),
+        ("Przeciążenie używa?", "Różnych parametrów", "Różnych plików", "Wątków", "Pakietów", "a"),
 
-        ("Overriding uses?", "Same method", "Same variable", "Arrays", "Pointers", "a"),
+        ("Nadpisywanie używa?", "Tej samej metody", "Tej samej zmiennej", "Tablic", "Wskaźników", "a"),
 
-        ("Compile-time polymorphism?", "Overloading", "Overriding", "GC", "Reflection", "a"),
+        ("Polimorfizm na etapie kompilacji?", "Przeciążanie", "Nadpisywanie", "GC", "Refleksja", "a"),
 
-        ("Runtime polymorphism?", "Inheritance", "Overriding", "Compilation", "Parsing", "b"),
+        ("Polimorfizm w czasie wykonania?", "Dziedziczenie", "Nadpisywanie", "Kompilacja", "Parsowanie", "b"),
 
-        ("Access modifiers control?", "Visibility", "RAM", "CPU", "Speed", "a"),
+        ("Modyfikatory dostępu kontrolują?", "Widoczność", "RAM", "CPU", "Szybkość", "a"),
 
-        ("Accessible everywhere?", "Private", "Protected", "Public", "Final", "c"),
+        ("Dostępne wszędzie?", "Private", "Protected", "Public", "Final", "c"),
 
-        ("Only same class access?", "Protected", "Static", "Private", "Public", "c"),
+        ("Tylko ta sama klasa ma dostęp?", "Protected", "Static", "Private", "Public", "c"),
 
-        ("Diamond problem from?", "Multiple inheritance", "GC", "Loops", "Arrays", "a"),
+        ("Problem diamentu wynika z?", "Wielokrotnego dziedziczenia", "GC", "Pętli", "Tablic", "a"),
 
-        ("Diamond problem causes?", "Ambiguity", "Compilation", "Encryption", "Sorting", "a"),
+        ("Problem diamentu powoduje?", "Niejednoznaczność", "Kompilację", "Szyfrowanie", "Sortowanie", "a"),
 
-        ("Interfaces define?", "Contract", "Database", "Compiler", "Cache", "a"),
+        ("Interfejsy definiują?", "Kontrakt", "Bazę danych", "Kompilator", "Cache", "a"),
 
-        ("Interfaces help achieve?", "Loose coupling", "Lag", "Duplication", "Crashes", "a"),
+        ("Interfejsy pomagają osiągnąć?", "Luźne powiązania", "Lagi", "Duplikację", "Awarie", "a"),
 
-        ("PaymentProcessor is?", "Interface", "Object", "Array", "Loop", "a"),
+        ("PaymentProcessor to?", "Interfejs", "Obiekt", "Tablica", "Pętla", "a"),
 
-        ("Composition relation?", "HAS-A", "IS-A", "USES-A", "CALLS-A", "a"),
+        ("Relacja w kompozycji?", "HAS-A", "IS-A", "USES-A", "CALLS-A", "a"),
 
-        ("Inheritance relation?", "HAS-A", "IS-A", "OWNS-A", "LINKS-A", "b"),
+        ("Relacja w dziedziczeniu?", "HAS-A", "IS-A", "OWNS-A", "LINKS-A", "b"),
 
-        ("Car HAS-A Engine means?", "Composition", "Inheritance", "Abstraction", "GC", "a"),
+        ("Car HAS-A Engine to?", "Kompozycja", "Dziedziczenie", "Abstrakcja", "GC", "a"),
 
-        ("SOLID has how many principles?", "3", "4", "5", "6", "c"),
+        ("Ile zasad ma SOLID?", "3", "4", "5", "6", "c"),
 
-        ("SRP full form?", "Single Responsibility Principle", "Simple Runtime Process", "Secure Resource Policy", "Static Rule Pattern", "a"),
+        ("Rozwinięcie SRP?", "Single Responsibility Principle", "Simple Runtime Process", "Secure Resource Policy", "Static Rule Pattern", "a"),
 
-        ("Single responsibility means?", "One reason to change", "One variable", "One method", "One loop", "a"),
+        ("Pojedyncza odpowiedzialność znaczy?", "Jeden powód do zmiany", "Jedna zmienna", "Jedna metoda", "Jedna pętla", "a"),
 
-        ("Open/Closed principle?", "Extend not modify", "Modify always", "Delete classes", "Avoid interfaces", "a"),
+        ("Zasada otwarte/zamknięte?", "Rozszerzaj, nie modyfikuj", "Zawsze modyfikuj", "Usuwaj klasy", "Unikaj interfejsów", "a"),
 
-        ("LSP full form?", "Liskov Substitution Principle", "Local Static Process", "Linked Source Pattern", "Linear Storage Policy", "a"),
+        ("Rozwinięcie LSP?", "Liskov Substitution Principle", "Local Static Process", "Linked Source Pattern", "Linear Storage Policy", "a"),
 
-        ("ISP full form?", "Interface Segregation Principle", "Internal System Package", "Indexed Storage Process", "Integrated Source Policy", "a"),
+        ("Rozwinięcie ISP?", "Interface Segregation Principle", "Internal System Package", "Indexed Storage Process", "Integrated Source Policy", "a"),
 
-        ("DIP full form?", "Dependency Inversion Principle", "Dynamic Interface Package", "Direct Injection Policy", "Default Integration Process", "a"),
+        ("Rozwinięcie DIP?", "Dependency Inversion Principle", "Dynamic Interface Package", "Direct Injection Policy", "Default Integration Process", "a"),
 
-        ("Design patterns are?", "Reusable solutions", "Errors", "Databases", "Loops", "a"),
+        ("Wzorce projektowe to?", "Powtarzalne rozwiązania", "Błędy", "Bazy danych", "Pętle", "a"),
 
-        ("Singleton ensures?", "One instance", "Many threads", "Fast loops", "Two objects", "a"),
+        ("Singleton zapewnia?", "Jedną instancję", "Wiele wątków", "Szybkie pętle", "Dwa obiekty", "a"),
 
-        ("Factory pattern creates?", "Objects", "RAM", "Threads", "Servers", "a"),
+        ("Wzorzec Factory tworzy?", "Obiekty", "RAM", "Wątki", "Serwery", "a"),
 
-        ("Observer pattern defines?", "One-to-many dependency", "Compilation", "Encryption", "Sorting", "a"),
+        ("Wzorzec Observer definiuje?", "Zależność jeden-do-wielu", "Kompilację", "Szyfrowanie", "Sortowanie", "a"),
 
-        ("Strategy pattern uses?", "Algorithms family", "Files", "Packages", "Pointers", "a"),
+        ("Wzorzec Strategy używa?", "Rodziny algorytmów", "Plików", "Pakietów", "Wskaźników", "a"),
 
-        ("Garbage collection manages?", "Memory", "Threads", "Database", "Graphics", "a"),
+        ("Garbage collection zarządza?", "Pamięcią", "Wątkami", "Bazą danych", "Grafiką", "a"),
 
-        ("Unreachable objects are?", "Removed", "Compiled", "Encrypted", "Cached", "a"),
+        ("Nieosiągalne obiekty są?", "Usuwane", "Kompilowane", "Szyfrowane", "Cache'owane", "a"),
 
-        ("Java memory management?", "Automatic GC", "Manual only", "No memory", "Binary", "a"),
+        ("Zarządzanie pamięcią w Javie?", "Automatyczny GC", "Tylko ręczne", "Brak pamięci", "Binarne", "a"),
 
-        ("C++ traditionally uses?", "Manual memory", "GC only", "Python GC", "Browser cache", "a"),
+        ("C++ tradycyjnie używa?", "Ręcznej pamięci", "Tylko GC", "Pythonowego GC", "Cache przeglądarki", "a"),
 
-        ("Reflection works at?", "Runtime", "Compile time", "Install time", "Boot time", "a"),
+        ("Refleksja działa w?", "Czasie wykonania", "Czasie kompilacji", "Czasie instalacji", "Czasie startu", "a"),
 
-        ("dir(obj) does?", "List attributes", "Delete object", "Compile class", "Encrypt file", "a"),
+        ("dir(obj) robi co?", "Listuje atrybuty", "Usuwa obiekt", "Kompiluje klasę", "Szyfruje plik", "a"),
 
-        ("hasattr checks?", "Attribute exists", "Memory size", "GC state", "Class type", "a"),
+        ("hasattr sprawdza?", "Czy atrybut istnieje", "Rozmiar pamięci", "Stan GC", "Typ klasy", "a"),
 
-        ("getattr returns?", "Attribute value", "Thread", "Loop", "Package", "a"),
+        ("getattr zwraca?", "Wartość atrybutu", "Wątek", "Pętlę", "Pakiet", "a"),
 
-        ("Metaclass creates?", "Classes", "Loops", "Variables", "Arrays", "a"),
+        ("Metaklasa tworzy?", "Klasy", "Pętle", "Zmienne", "Tablice", "a"),
 
-        ("Dependency Injection reduces?", "Tight coupling", "Memory", "Threads", "Files", "a"),
+        ("Dependency Injection redukuje?", "Silne powiązania", "Pamięć", "Wątki", "Pliki", "a"),
 
-        ("Without DI causes?", "Tight coupling", "Abstraction", "GC", "Inheritance", "a"),
+        ("Brak DI powoduje?", "Silne powiązania", "Abstrakcję", "GC", "Dziedziczenie", "a"),
 
-        ("Injected dependency passed by?", "Constructor", "Loop", "GC", "Compiler", "a"),
+        ("Wstrzyknięta zależność jest podawana przez?", "Konstruktor", "Pętlę", "GC", "Kompilator", "a"),
 
-        ("Code maintainability improved by?", "OOP", "Binary", "HTML", "Assembly", "a"),
+        ("Łatwość utrzymania kodu poprawia?", "OOP", "Binarka", "HTML", "Assembler", "a"),
 
-        ("Design patterns require?", "OOP knowledge", "No coding", "Only SQL", "Only CSS", "a"),
+        ("Wzorce projektowe wymagają?", "Znajomości OOP", "Braku kodowania", "Tylko SQL", "Tylko CSS", "a"),
 
-        ("OOP helps break?", "Complex problems", "Databases", "Servers", "Networks", "a"),
+        ("OOP pomaga rozbić?", "Złożone problemy", "Bazy danych", "Serwery", "Sieci", "a"),
 
     ]
 
