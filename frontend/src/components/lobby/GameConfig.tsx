@@ -31,13 +31,13 @@ export const GameConfig = ({
 
     <div className="flex flex-col gap-8 p-2">
       <div className="flex flex-col">
-        <label className={labelClass}>Punkty do wygranej</label>
-        <input type="number" className={inputClass} defaultValue={10} />
+        <label className={labelClass}>Karty startowe</label>
+        <input type="number" className={inputClass} defaultValue={5} min={1} max={10} />
       </div>
 
       <div className="flex flex-col">
-        <label className={labelClass}>Czas tury (sekundy)</label>
-        <input type="number" className={inputClass} defaultValue={30} />
+        <label className={labelClass}>Czas na odpowiedź (sekundy)</label>
+        <input type="number" className={inputClass} defaultValue={30} min={5} max={120} />
       </div>
 
       <div className="mt-4 flex flex-col gap-4">
@@ -45,8 +45,27 @@ export const GameConfig = ({
           <input
             type="checkbox"
             className="h-6 w-6 border-2 border-white accent-yellow-400"
+            defaultChecked
           />
-          <span className={checkboxLabelClass}>Pokój prywatny</span>
+          <span className={checkboxLabelClass}>Włącz power-upy</span>
+        </label>
+
+        <label className="group flex cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            className="h-6 w-6 border-2 border-white accent-yellow-400"
+            defaultChecked
+          />
+          <span className={checkboxLabelClass}>Włącz debuffy</span>
+        </label>
+
+        <label className="group flex cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            className="h-6 w-6 border-2 border-white accent-yellow-400"
+            defaultChecked
+          />
+          <span className={checkboxLabelClass}>Włącz efekty</span>
         </label>
 
         <label className="group flex cursor-pointer items-center gap-3">
@@ -54,7 +73,7 @@ export const GameConfig = ({
             type="checkbox"
             className="h-6 w-6 border-2 border-white accent-yellow-400"
           />
-          <span className={checkboxLabelClass}>Włącz czat</span>
+          <span className={checkboxLabelClass}>Tryb hardcore</span>
         </label>
       </div>
     </div>
