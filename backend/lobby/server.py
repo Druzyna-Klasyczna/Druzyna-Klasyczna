@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'game')))
+
+
 from .ws_router import router as ws_router
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +11,8 @@ from .RoomManager import lobby_manager
 import db.database as db
 import sqlite3
 from db.database import DB_NAME
+
+
 
 app = FastAPI()
 

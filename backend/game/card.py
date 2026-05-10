@@ -27,12 +27,22 @@ class Card(ABC):
     def get_card_type(self):
         pass
 
+    @abstractmethod
+    def to_dict(self):
+        pass
+
 class PowerUpCard(Card):
     def __init__(self, powerup_type):
         self.powerup_type = powerup_type
 
     def get_card_type(self):
         return CardType.POWER_UP
+
+    def to_dict(self):
+        return {
+            "type": "POWER_UP",
+            "powerup_type": self.powerup_type.name
+        }
 
 class EffectCard(Card):
     def __init__(self, effect_type):
@@ -41,12 +51,24 @@ class EffectCard(Card):
     def get_card_type(self):
         return CardType.EFFECT
 
+    def to_dict(self):
+        return {
+            "type": "EFFECT",
+            "effect_type": self.effect_type.name
+        }
+
 class DebuffCard(Card):
     def __init__(self, debuff_type):
         self.debuff_type = debuff_type
     
     def get_card_type(self):
         return CardType.DEBUFF
+
+    def to_dict(self):
+        return {
+            "type": "DEBUFF",
+            "debuff_type": self.debuff_type.name
+        }
 
 class QuestionCard(Card):
     def __init__(self, question, answers, correct):
@@ -68,3 +90,10 @@ class QuestionCard(Card):
         if self.debuff is None:
             return None
         return self.debuff.debuff_type
+
+    def to_dict(self):
+        return {
+            "type": "QUESTION",
+            "question": self.question,
+            "answers": self.answers
+        }
