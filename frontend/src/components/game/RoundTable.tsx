@@ -27,15 +27,14 @@ const seatAngle = (idx: number, total: number) =>
   (idx / total) * Math.PI * 2 + Math.PI / 2;
 
 export const RoundTable = ({ state }: RoundTableProps) => {
-  const { players, currentPlayerIdx, direction, phase, pendingQuestion, log } =
+  const { players, currentPlayerIdx, direction, phase, pendingQuestion } =
     state;
 
-  const lastLog = log.slice(-3);
   const RotateIcon = direction === 1 ? RotateCw : RotateCcw;
 
   return (
-    <TactileContainer className="relative h-full !flex-col !items-stretch !justify-stretch !gap-2 !p-2">
-      <div className="relative min-h-0 flex-1 overflow-hidden">
+    <TactileContainer className="relative h-full !items-stretch !justify-stretch !p-2">
+      <div className="relative h-full w-full overflow-hidden">
         {/* Round table surface */}
         <div className="absolute left-1/2 top-1/2 aspect-square h-[96%] max-h-full -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-gradient-to-br from-[#7a2a26] to-[#3d1311] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25),inset_0_0_60px_rgba(0,0,0,0.6)]">
           {/* Inner felt ring */}
@@ -103,28 +102,6 @@ export const RoundTable = ({ state }: RoundTableProps) => {
             style={polar(seatAngle(i, players.length), SEAT_RADIUS_PCT)}
           />
         ))}
-      </div>
-
-      {/* Game log strip — sits next to (below) the table */}
-      <div className="flex flex-none flex-col gap-1 border-t-2 border-black/40 pt-2">
-        {lastLog.length === 0 ? (
-          <div className="text-center text-[11px] italic text-white/50">
-            Cisza przy stole...
-          </div>
-        ) : (
-          lastLog.map((entry, i) => (
-            <div
-              key={`${log.length - lastLog.length + i}`}
-              className={`truncate border-2 border-black px-2 py-0.5 text-center text-[11px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${
-                i === lastLog.length - 1
-                  ? "bg-yellow-300 text-black"
-                  : "bg-black/80 text-yellow-400"
-              }`}
-            >
-              {entry}
-            </div>
-          ))
-        )}
       </div>
     </TactileContainer>
   );

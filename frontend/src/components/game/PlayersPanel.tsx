@@ -13,7 +13,7 @@ export const PlayersPanel = ({
   pendingTargetId,
 }: PlayersPanelProps) => (
   <TactileContainer className="h-full !flex-col !items-stretch !justify-start overflow-hidden">
-    <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-2xl uppercase text-white">
+    <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
       Gracze
     </h2>
 
