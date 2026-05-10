@@ -27,15 +27,15 @@ app.add_middleware(
 
 app.include_router(ws_router)
 
-@app.get("/debug/get-questions")
+@app.get("/get-questions")
 def get_questions(conn = Depends(get_db_conn)):
     return db.fetch_all_questions(conn)
 
-@app.get("/debug/get-decks")
+@app.get("/get-decks")
 def get_decks(conn = Depends(get_db_conn)):
     return db.fetch_all_decks(conn)
 
-@app.get("/debug/get-deck-q-bind")
+@app.get("/get-deck-q-bind")
 def get_deck_q_bind(conn = Depends(get_db_conn)):
     return db.fetch_deck_relations(conn)
 
