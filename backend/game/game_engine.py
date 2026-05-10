@@ -1,10 +1,12 @@
 from player import GamePlayer
 from deck import Deck
 from input_provider import ConsoleInputProvider
-from card import QuestionCard, CardType, PowerUpType
-from game_exceptions import WrongCardException
+from card import QuestionCard, CardType, PowerUpType, EffectType
+from game_exceptions import WrongCardException, DrawPileEmptyException
 from event import GameEvent, EventType
 from collections import deque
+import random
+
 
 class RoomSettingsMock:
     def __init__(self):
@@ -25,7 +27,8 @@ class GameEngine:
 
         self.event_queue = deque([])
 
-        self.draw_pile = self.get_deck(room)
+        self.question_draw_pile = self.get_deck(room)
+        self.special_draw_pile = Deck()
         self.discard_pile = Deck() # for now, maybe separate class later?
         self.played_card = None
 
@@ -48,13 +51,17 @@ class GameEngine:
         self.add_initial_events()
     
     def shuffle_cards(self):
-        self.draw_pile.shuffle_cards()
+        self.question_draw_pile.shuffle_cards()
+        self.special_draw_pile.shuffle_cards()
 
     def deal_cards(self):
         for loop_index in range(self.config.initial_deal_cards * len(self.players)):
             player_index = loop_index % len(self.players)
             player = self.players[player_index]
-            player.add_card(self.draw_pile.pop_card())
+            player.add_card(self.question_draw_pile.pop_card())
+        
+        for player in self.players:
+            player.add_card(self.special_draw_pile.pop_card())
     
     def add_initial_events(self):
         self.add_event(self.players[0], EventType.EFFECT)
@@ -124,10 +131,17 @@ class GameEngine:
     
     def correct_answer(self, card, player):
         print("Correct!")
+        try:
+            player.add_card(self.special_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
 
     def incorrect_answer(self, card, player):
-        # kara 
         print("Incorrect!")
+        try:
+            player.add_card(self.question_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
     
     def process_effect_event(self, player):
         print("EFFECT")
@@ -136,7 +150,14 @@ class GameEngine:
             self.process_effect_card(effect_card, player)
     
     def process_effect_card(self, card, player):
-        pass
+        if card.get_card_type() != CardType.EFFECT:
+            raise WrongCardException("card should be of type: effect")
+        
+        player.remove_card(card)
+
+        if card.powerup_type == EffectType.SHUFFLE_PLAYERS:
+            random.shuffle(self.players)
+            self.current_player = self.players.index(player)
 
     def process_question_event(self, player):
         print("QUESTION")
@@ -167,7 +188,6 @@ class GameEngine:
         if card_index is None:
             return None
         card = player.get_card(card_index)
-        return card
     
     def next_turn(self):
         self.current_player = self.get_next_player_index()
