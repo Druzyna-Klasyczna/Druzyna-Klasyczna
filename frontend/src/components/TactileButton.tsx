@@ -2,7 +2,7 @@ import React from "react";
 
 interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     color?: "blue" | "yellow" | "red";
-    size?: "sm" | "md" | "lg";
+    size?: "sm" | "md" | "lg" | "xl";
 }
 
 export const TactileButton = ({
@@ -51,6 +51,13 @@ export const TactileButton = ({
             depth: 8,
             offset: 4,
             activeMove: 4,
+        },
+        xl: {
+            padding: "px-12 py-6", // Wyraźnie szerszy i wyższy
+            fontSize: "text-3xl", // Duży, czytelny tekst
+            depth: 12, // Grubsza "podstawa" przycisku (cień)
+            offset: 6, // Większe przesunięcie warstwy górnej
+            activeMove: 6, // Mocniejszy skok przy kliknięciu (musi zrównać się z offsetem)
         },
     };
 
