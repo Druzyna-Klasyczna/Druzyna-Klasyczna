@@ -22,7 +22,11 @@ class GameEngine:
         self.discard_pile = Deck()
         self.played_card = None
 
-        self.input_provider = WebsocketInputProvider() 
+        self.input_provider = WebsocketInputProvider()
+    
+    def serialize_game_state(self):
+        # publiczne
+        pass
     
     def get_deck(self, room):
         return Deck()
@@ -72,12 +76,15 @@ class GameEngine:
     def add_event_to_start(self, player, event_type):
         self.event_queue.appendleft(GameEvent(player=player, event_type=event_type))
     
-    async def process_event(self, event):
+    async def broadcast(self, event, message):
         if self.lobby_manager:
             await self.lobby_manager.broadcast_to_room(self.room_code, {
-                "event": "GAME_UPDATE",
-                "message": f"Gracz {event.player.id} wykonuje akcję {event.event_type.name}"
+                "event": event,
+                "message": message
             })
+    
+    async def process_event(self, event):
+        self.broadcast("GAME_UPDATE", f"Gracz {event.player.id} wykonuje akcję {event.event_type.name}")
 
         if event.event_type == EventType.POWER_UP:
             await self.process_powerup_event(event.player)
