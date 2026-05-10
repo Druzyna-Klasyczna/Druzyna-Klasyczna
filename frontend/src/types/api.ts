@@ -23,8 +23,8 @@ export interface CreateRoomResponse {
 }
 
 export interface JoinRoomResponse {
+  status: string;
   player_id: string;
-  room_code: string;
 }
 
 export type LobbyServerEvent =

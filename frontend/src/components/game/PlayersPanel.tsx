@@ -1,48 +1,68 @@
+import type { GamePlayer } from "../../types/game";
 import { TactileContainer } from "../TactileContainer";
 
-export interface GamePlayerSummary {
-  id: string;
-  name: string;
-  handCount: number;
-  isCurrentTurn: boolean;
-  isMe: boolean;
-}
-
 interface PlayersPanelProps {
-  players: GamePlayerSummary[];
+  players: GamePlayer[];
+  currentPlayerId: string | null;
+  pendingTargetId?: string | null;
 }
 
-export const PlayersPanel = ({ players }: PlayersPanelProps) => (
+export const PlayersPanel = ({
+  players,
+  currentPlayerId,
+  pendingTargetId,
+}: PlayersPanelProps) => (
   <TactileContainer className="!flex-col !items-stretch !justify-start">
     <h2 className="mb-4 border-b-4 border-black pb-2 text-2xl uppercase text-white">
       Gracze
     </h2>
 
-    {players.length === 0 ? (
-      <div className="italic text-gray-400">Lista graczy pojawi się tutaj...</div>
-    ) : (
-      <ul className="flex flex-col gap-3">
-        {players.map((p) => (
+    <ul className="flex flex-col gap-3">
+      {players.map((p) => {
+        const questions = p.hand.filter((c) => c.kind === "QUESTION").length;
+        const support = p.hand.length - questions;
+        const isCurrent = p.id === currentPlayerId;
+        const isTarget = p.id === pendingTargetId;
+        return (
           <li
             key={p.id}
-            className={`flex items-center justify-between border-[3px] border-black px-3 py-2 ${
-              p.isCurrentTurn ? "bg-yellow-400 text-black" : "bg-[#444444] text-white"
+            className={`flex flex-col gap-1 border-[3px] px-3 py-2 ${
+              isCurrent
+                ? "border-yellow-400 bg-[#3a3a14] text-yellow-300"
+                : "border-black bg-[#444444] text-white"
             }`}
           >
-            <span className="text-base font-black uppercase tracking-tight">
-              {p.name}
-              {p.isMe && (
-                <span className="ml-2 border border-black bg-white px-1 text-[10px] font-bold uppercase text-black">
-                  Ty
+            <div className="flex items-center justify-between">
+              <span className="truncate text-sm font-black uppercase tracking-tight">
+                {p.name}
+                {p.isMe && (
+                  <span className="ml-2 border border-black bg-white px-1 text-[10px] font-bold uppercase text-black">
+                    Ty
+                  </span>
+                )}
+              </span>
+              {isCurrent && (
+                <span className="border border-black bg-yellow-400 px-1 text-[10px] font-black uppercase text-black">
+                  TURA
                 </span>
               )}
-            </span>
-            <span className="text-sm font-black">
-              {p.handCount} <span className="opacity-70">kart</span>
-            </span>
+              {isTarget && !isCurrent && (
+                <span className="border border-black bg-rose-400 px-1 text-[10px] font-black uppercase text-black">
+                  CEL
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2 text-[10px] font-black">
+              <span className="border border-black bg-yellow-300 px-1 text-black">
+                {questions} pytań
+              </span>
+              <span className="border border-black bg-emerald-300 px-1 text-black">
+                {support} wsparcia
+              </span>
+            </div>
           </li>
-        ))}
-      </ul>
-    )}
+        );
+      })}
+    </ul>
   </TactileContainer>
 );

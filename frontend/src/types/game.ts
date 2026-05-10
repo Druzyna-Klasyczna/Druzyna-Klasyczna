@@ -36,4 +36,50 @@ export interface EffectCard {
   description: string;
 }
 
-export type Card = QuestionCard | PowerUpCard | DebuffCard | EffectCard;
+export type SupportCard = PowerUpCard | DebuffCard | EffectCard;
+export type Card = QuestionCard | SupportCard;
+
+export type TurnPhase =
+  | "ANSWER"
+  | "EFFECT"
+  | "QUESTION"
+  | "DEBUFF"
+  | "RESULT";
+
+export type Direction = 1 | -1;
+
+export interface GamePlayer {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  hand: Card[];
+  isMe: boolean;
+  isBot: boolean;
+}
+
+export interface PendingQuestion {
+  card: QuestionCard;
+  fromPlayerId: string;
+  toPlayerId: string;
+  attachedDebuff: DebuffCard | null;
+  startedAt: number;
+  baseDurationMs: number;
+  eliminatedAnswers: number[];
+}
+
+export interface GameEffectsState {
+  timeRushTurnsLeft: number;
+}
+
+export interface GameState {
+  players: GamePlayer[];
+  currentPlayerIdx: number;
+  direction: Direction;
+  phase: TurnPhase;
+  pendingQuestion: PendingQuestion | null;
+  drawPileCount: number;
+  log: string[];
+  winnerId: string | null;
+  effects: GameEffectsState;
+  turnNumber: number;
+}
