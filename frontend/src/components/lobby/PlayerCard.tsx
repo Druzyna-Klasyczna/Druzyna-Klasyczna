@@ -24,8 +24,8 @@ const PlayerCard = ({
         <div className="group relative">
             {/* Główny kontener karty - kanciasty i tactile */}
             <div
-                className="bg-[#333333] border-[3px] border-black p-4 flex items-center justify-between 
-                      shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-transform hover:-translate-y-1"
+                className="bg-[#333333] border-[3px] border-black p-4 pr-6 flex items-center justify-between
+                      transition-transform hover:-translate-y-1"
             >
                 <div className="flex items-center gap-5">
                     {/* Avatar - kanciasty box */}

@@ -40,8 +40,7 @@ export const useLobby = (roomCode: string | null, playerId: string | null) => {
       if (data.event === "ROOM_STATE_UPDATE") {
         setRoom(data.room);
       } else if (data.event === "GAME_STARTING") {
-        console.log("Gra startuje! Przejście do stołu...");
-        // navigate("/game"); // Tu później dodacie przejście do gry
+        navigate(`/game?code=${roomCode}&id=${playerId}`);
       }
     };
 

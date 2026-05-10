@@ -1,11 +1,15 @@
 import { ChevronLeft, ChevronRight, Import } from "lucide-react";
 import { TactileButton } from "../TactileButton";
 
-export const DeckPreview = () => {
+interface DeckPreviewProps {
+    isHost?: boolean;
+}
+
+export const DeckPreview = ({ isHost = false }: DeckPreviewProps) => {
     return (
         <div className="flex flex-col items-center justify-around h-full py-4 w-full">
             <div className="flex items-center gap-6">
-                <TactileButton size="sm" color="blue">
+                <TactileButton size="sm" color="blue" disabled={!isHost}>
                     <ChevronLeft size={24} />
                 </TactileButton>
 
@@ -17,14 +21,16 @@ export const DeckPreview = () => {
                     </span>
                 </div>
 
-                <TactileButton size="sm" color="blue">
+                <TactileButton size="sm" color="blue" disabled={!isHost}>
                     <ChevronRight size={24} />
                 </TactileButton>
             </div>
 
-            <TactileButton size="sm" color="yellow">
-                <Import size={16} className="mr-2" /> Importuj Deck
-            </TactileButton>
+            {isHost && (
+                <TactileButton size="sm" color="yellow">
+                    <Import size={16} className="mr-2" /> Importuj Deck
+                </TactileButton>
+            )}
         </div>
     );
 };

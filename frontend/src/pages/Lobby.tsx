@@ -11,7 +11,7 @@ export const Lobby = () => {
     const playerId = searchParams.get("id");
     const navigate = useNavigate();
 
-    const { room, kickPlayer } = useLobby(roomCode, playerId);
+    const { room, kickPlayer, startGame } = useLobby(roomCode, playerId);
 
     if (!room) {
         return (
@@ -26,11 +26,11 @@ export const Lobby = () => {
     const playersArray = Object.values(room.players).map((p) => ({
         id: p.player_id,
         name: p.name,
-        isHost: p.is_host,
         isAdmin: p.is_host,
-        score: 0,
         avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.name}`,
     }));
+
+    const isHost = !!room.players[playerId!]?.is_host;
 
     const handleLeave = () => {
         navigate("/");
@@ -57,7 +57,7 @@ export const Lobby = () => {
                     <h2 className="text-white text-2xl mb-4 uppercase border-b-4 border-black pb-2">
                         Deck
                     </h2>
-                    <DeckPreview />
+                    <DeckPreview isHost={isHost} />
                 </TactileContainer>
 
                 <TactileContainer className="h-full flex flex-col">
@@ -66,7 +66,8 @@ export const Lobby = () => {
                     </h2>
                     <GameConfig
                         roomCode={room.room_code}
-                        isHost={room.players[playerId!]?.is_host}
+                        isHost={isHost}
+                        onStart={startGame}
                     />
                 </TactileContainer>
             </div>

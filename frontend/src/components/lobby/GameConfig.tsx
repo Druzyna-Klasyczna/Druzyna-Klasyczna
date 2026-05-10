@@ -5,9 +5,11 @@ import { SessionCode } from "./SessionCode";
 export const GameConfig = ({
   roomCode,
   isHost,
+  onStart,
 }: {
   roomCode: string;
   isHost?: boolean;
+  onStart?: () => void;
 }) => {
   const inputStyle =
     "w-full bg-black border-2 border-white/20 text-yellow-400 p-3 font-black italic uppercase outline-none focus:border-yellow-400 transition-colors";
@@ -53,11 +55,13 @@ export const GameConfig = ({
           </label>
         </div>
       </div>
-      <div className="p-2 flex justify-center items-center shrink-0">
-        <TactileButton size="lg" color="yellow" disabled={!isHost}>
-          START
-        </TactileButton>
-      </div>
+      {isHost && (
+        <div className="p-2 flex justify-center items-center shrink-0">
+          <TactileButton size="lg" color="yellow" onClick={onStart}>
+            START
+          </TactileButton>
+        </div>
+      )}
     </div>
   );
 };
