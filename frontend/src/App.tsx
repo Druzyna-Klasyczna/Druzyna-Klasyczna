@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
 import HomePageWithSync from "./pages/HomePageWithSync";
 import { Lobby } from "./pages/Lobby";
+import GamePage from "./pages/GamePage";
 
 function App() {
   return (
@@ -9,6 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePageWithSync />} />
         <Route path="/lobby" element={<Lobby></Lobby>} />
+        <Route path="/game" element={<GamePage></GamePage>} />
       </Routes>
     </BrowserRouter>
   );
