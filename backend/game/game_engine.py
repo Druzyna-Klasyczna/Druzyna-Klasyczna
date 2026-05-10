@@ -174,7 +174,7 @@ class GameEngine:
             "event": "ANSWER_RESULT",
             "player_id": player.id,
             "is_correct": is_correct,
-            "correct_index": getattr(self.played_card, 'correct_answer_index', None),
+            "correct_index": getattr(self.played_card, 'correct', None),
             "scores": {p.id: getattr(p, 'score', 0) for p in self.players}
         })
     
