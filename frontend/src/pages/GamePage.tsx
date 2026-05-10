@@ -7,7 +7,8 @@ import { PhaseBanner } from "../components/game/PhaseBanner";
 import { PlayersPanel } from "../components/game/PlayersPanel";
 import { RoundTable } from "../components/game/RoundTable";
 import { WinOverlay } from "../components/game/WinOverlay";
-import { nextPlayerIdx, useGameMock } from "../hooks/useGameMock";
+import { nextPlayerIdx } from "../hooks/useGameMock";
+import { useNetworkedGame } from "../hooks/useNetworkedGame";
 import type { Card } from "../types/game";
 
 const GamePage = () => {
@@ -17,7 +18,7 @@ const GamePage = () => {
   const playerId = searchParams.get("id");
 
   const myName = playerId ? `Ty (${playerId.slice(0, 4)})` : "Ty";
-  const { state, actions } = useGameMock(myName);
+  const { state, actions } = useNetworkedGame(roomCode, playerId, myName);
   const [hovered, setHovered] = useState<Card | null>(null);
 
   const me = state.players.find((p) => p.isMe);

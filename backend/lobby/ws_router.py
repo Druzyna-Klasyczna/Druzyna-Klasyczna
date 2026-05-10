@@ -1,13 +1,38 @@
-import asyncio
+import sqlite3
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .RoomManager import lobby_manager
-
-from game_engine import GameEngine
-from input_provider import WebsocketInputProvider
+import db.database as db
+import db.utils as dbutil
 
 router = APIRouter()
 
-active_games = {}
+# room_code -> [{ "question": str, "answers": [str,str,str,str], "correctIndex": int }]
+room_questions: dict[str, list[dict]] = {}
+
+_LETTER_TO_IDX = {"a": 0, "b": 1, "c": 2, "d": 3}
+
+
+def _load_questions_for_room(room_code: str) -> None:
+    if room_code in room_questions:
+        return
+    conn = sqlite3.connect(db.DB_NAME)
+    try:
+        _deck_id, cards = dbutil.get_question_cards_from_random_deck(conn)
+    finally:
+        conn.close()
+    payload = []
+    for c in cards:
+        correct = getattr(c, "correct", None)
+        if isinstance(correct, str):
+            idx = _LETTER_TO_IDX.get(correct.lower(), 0)
+        else:
+            idx = int(correct) if correct is not None else 0
+        payload.append({
+            "question": c.question,
+            "answers": list(c.answers),
+            "correctIndex": idx,
+        })
+    room_questions[room_code] = payload
 
 @router.websocket("/ws/lobby/{room_code}/{player_id}")
 async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
@@ -62,41 +87,64 @@ async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
             elif action == "START_GAME":
                 if room.players.get(player_id) and room.players[player_id].is_host and room.can_start():
                     room.status = "playing"
-                    
-                    engine = GameEngine(room)
-                    engine.lobby_manager = lobby_manager
-                    engine.input_provider = WebsocketInputProvider()
-                    
-                    for pid in room.players.keys():
-                        engine.input_provider.register_player(pid)
-                    
-                    active_games[room_code] = engine
-                    asyncio.create_task(engine.run())
-                    # -----------------------------
-
+                    # Relay mode: clients run their own state and the backend
+                    # only forwards actions on /ws/game/... — no server-side
+                    # engine. We pick the deck once here so every client gets
+                    # the same questions in ROOM_INFO.
+                    try:
+                        _load_questions_for_room(room_code)
+                    except Exception as e:
+                        print(f"[start_game] failed to load deck: {e}")
                     await lobby_manager.broadcast_to_room(room_code, {"event": "GAME_STARTING"})
 
-            elif action == "PLAY_CARD":
-                engine = active_games.get(room_code)
-                if engine and player_id in engine.input_provider.mailboxes:
-                    await engine.input_provider.mailboxes[player_id].put({
-                        "card_index": payload.get("card_index")
-                    })
-
-            elif action == "ANSWER_QUESTION":
-                engine = active_games.get(room_code)
-                if engine and player_id in engine.input_provider.mailboxes:
-                    await engine.input_provider.mailboxes[player_id].put({
-                        "answer_index": payload.get("answer_index")
-                    })
-
     except WebSocketDisconnect:
+        # If the game has started, the client is just navigating away from
+        # the lobby route to the game route — don't tear down their player or
+        # connection slot, the game websocket will replace it.
+        current = lobby_manager.get_room(room_code)
+        if current and current.status == "playing":
+            return
+
         lobby_manager.remove_player(room_code, player_id)
         if player_id in lobby_manager.active_connections:
             del lobby_manager.active_connections[player_id]
-            
+
         if lobby_manager.get_room(room_code):
             await lobby_manager.broadcast_to_room(room_code, {
-                "event": "ROOM_STATE_UPDATE", 
+                "event": "ROOM_STATE_UPDATE",
                 "room": lobby_manager.get_room(room_code).dict()
             })
+
+
+@router.websocket("/ws/game/{room_code}/{player_id}")
+async def game_websocket(websocket: WebSocket, room_code: str, player_id: str):
+    room = lobby_manager.get_room(room_code)
+
+    if not room or player_id not in room.players:
+        await websocket.close(code=4003)
+        return
+
+    await websocket.accept()
+    lobby_manager.active_connections[player_id] = websocket
+
+    await websocket.send_json({
+        "event": "ROOM_INFO",
+        "players": [
+            {"id": p.player_id, "name": p.name}
+            for p in room.players.values()
+        ],
+        "questions": room_questions.get(room_code, []),
+    })
+
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            for pid in list(room.players.keys()):
+                if pid == player_id:
+                    continue
+                conn = lobby_manager.active_connections.get(pid)
+                if conn:
+                    await conn.send_json(msg)
+    except WebSocketDisconnect:
+        if player_id in lobby_manager.active_connections:
+            del lobby_manager.active_connections[player_id]

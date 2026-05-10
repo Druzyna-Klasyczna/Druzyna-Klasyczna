@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { Card, GameState } from "../../types/game";
 import { TactileContainer } from "../TactileContainer";
 import { CardArt } from "./CardArt";
@@ -118,6 +119,71 @@ const SupportDetails = ({
   </div>
 );
 
+type AnswerFlash = "correct" | "wrong" | null;
+
+const useAnswerFlash = (state: GameState): AnswerFlash => {
+  const [flash, setFlash] = useState<AnswerFlash>(null);
+  const prevPending = useRef(state.pendingQuestion);
+  const prevLogLen = useRef(state.log.length);
+
+  useEffect(() => {
+    const had = prevPending.current;
+    const now = state.pendingQuestion;
+    if (had && !now && state.log.length > prevLogLen.current) {
+      const last = state.log[state.log.length - 1] ?? "";
+      if (last.includes("poprawnie")) setFlash("correct");
+      else if (last.includes("błędnie") || last.includes("nie zdążył"))
+        setFlash("wrong");
+      else setFlash(null);
+    }
+    prevPending.current = now;
+    prevLogLen.current = state.log.length;
+  }, [state.pendingQuestion, state.log]);
+
+  useEffect(() => {
+    if (!flash) return;
+    const id = window.setTimeout(() => setFlash(null), 1400);
+    return () => window.clearTimeout(id);
+  }, [flash]);
+
+  return flash;
+};
+
+const FlashOverlay = ({ kind }: { kind: Exclude<AnswerFlash, null> }) => {
+  const correct = kind === "correct";
+  return (
+    <div
+      key={kind}
+      className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center animate-[fadeOut_1.4s_ease-out_forwards] ${
+        correct ? "bg-emerald-400/70" : "bg-rose-500/70"
+      }`}
+    >
+      <div
+        className={`flex h-32 w-32 items-center justify-center rounded-full border-[6px] border-black shadow-[6px_6px_0_0_rgba(0,0,0,1)] animate-[popIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)] ${
+          correct ? "bg-emerald-300" : "bg-rose-400"
+        }`}
+      >
+        {correct ? (
+          <Check size={80} className="text-black" strokeWidth={4} />
+        ) : (
+          <X size={80} className="text-black" strokeWidth={4} />
+        )}
+      </div>
+      <style>{`
+        @keyframes popIn {
+          0% { transform: scale(0.3); opacity: 0; }
+          60% { transform: scale(1.15); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeOut {
+          0%, 60% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 export const CardPreview = ({
   state,
   hoveredCard,
@@ -126,9 +192,10 @@ export const CardPreview = ({
   const cur = state.players[state.currentPlayerIdx];
   const isAnswerMode =
     state.phase === "ANSWER" && cur?.isMe && state.pendingQuestion !== null;
+  const flash = useAnswerFlash(state);
 
   return (
-    <TactileContainer className="h-full !flex-col !items-stretch !justify-start overflow-hidden">
+    <TactileContainer className="relative h-full !flex-col !items-stretch !justify-start overflow-hidden">
       <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
         {isAnswerMode ? "Odpowiedz" : "Podgląd karty"}
       </h2>
@@ -154,6 +221,8 @@ export const CardPreview = ({
           </div>
         )}
       </div>
+
+      {flash && <FlashOverlay kind={flash} />}
     </TactileContainer>
   );
 };
