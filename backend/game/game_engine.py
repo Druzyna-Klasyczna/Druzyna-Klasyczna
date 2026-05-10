@@ -24,7 +24,7 @@ class GameEngine:
 
         self.input_provider = WebsocketInputProvider()
     
-    def get_decksw(self, room):
+    def get_deck(self, room):
         return Deck()
 
     async def run(self):
