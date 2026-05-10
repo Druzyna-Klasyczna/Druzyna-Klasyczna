@@ -24,7 +24,7 @@ class GameEngine:
 
         self.input_provider = WebsocketInputProvider()
     
-    def get_deck(self, room):
+    def get_decksw(self, room):
         return Deck()
 
     async def run(self):
@@ -104,7 +104,6 @@ class GameEngine:
             "phase": event.event_type.name,
             "current_player": event.player.id,
             "player_order": [p.id for p in self.players],
-            "scores": {p.id: getattr(p, 'score', 0) for p in self.players},
             "message": f"Faza {event.event_type.name} gracza {event.player.id}"
         }
 
@@ -175,11 +174,10 @@ class GameEngine:
             "player_id": player.id,
             "is_correct": is_correct,
             "correct_index": getattr(self.played_card, 'correct', None),
-            "scores": {p.id: getattr(p, 'score', 0) for p in self.players}
         })
     
     def correct_answer(self, card, player):
-        player.score = getattr(player, 'score', 0) + 10
+        pass
 
     def incorrect_answer(self, card, player):
         pass
