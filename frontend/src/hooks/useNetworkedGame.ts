@@ -2,7 +2,11 @@ import { useEffect, useReducer, useRef } from "react";
 import { WS_BASE_URL } from "../lib/config";
 import { makeRng, seedFromString } from "../lib/rng";
 import { newQuestionCard, newSupportCard } from "../mocks/cards";
-import { makeNetworkedPlayers } from "../mocks/players";
+import {
+  makeNetworkedPlayers,
+  makeRemoteQuestionCard,
+  type RemoteQuestion,
+} from "../mocks/players";
 import type {
   Card,
   GameState,
@@ -16,6 +20,7 @@ import { initialState, reducer } from "./useGameMock";
 interface RoomInfo {
   event: "ROOM_INFO";
   players: { id: string; name: string }[];
+  questions?: RemoteQuestion[];
 }
 
 const isRoomInfo = (msg: unknown): msg is RoomInfo =>
@@ -33,6 +38,7 @@ export const useNetworkedGame = (
   const rng = useRef<() => number>(() => Math.random());
   const stateRef = useRef<GameState>(state);
   stateRef.current = state;
+  const questionPool = useRef<RemoteQuestion[]>([]);
 
   useEffect(() => {
     if (!roomCode || !playerId) return;
@@ -52,7 +58,13 @@ export const useNetworkedGame = (
         return;
       }
       if (isRoomInfo(msg)) {
-        const players = makeNetworkedPlayers(msg.players, playerId, rng.current);
+        questionPool.current = msg.questions ?? [];
+        const players = makeNetworkedPlayers(
+          msg.players,
+          playerId,
+          rng.current,
+          questionPool.current,
+        );
         dispatch({ type: "INIT_GAME", players });
         return;
       }
@@ -95,6 +107,10 @@ export const useNetworkedGame = (
     const responder = s.players.find((p) => p.id === pq.toPlayerId);
 
     const idPrefix = `${playerId ?? "x"}-`;
+    const mintQuestion = () =>
+      questionPool.current.length > 0
+        ? makeRemoteQuestionCard(questionPool.current, rng.current, idPrefix)
+        : newQuestionCard(rng.current, idPrefix);
 
     if (correct) {
       const rewardCards: SupportCard[] = Array.from(
@@ -117,10 +133,10 @@ export const useNetworkedGame = (
 
     const penaltyCards: QuestionCard[] = Array.from(
       { length: multiplier },
-      () => newQuestionCard(rng.current, idPrefix),
+      () => mintQuestion(),
     );
     const roleReversalCards: Card[] | undefined = roleReversal
-      ? [newQuestionCard(rng.current, idPrefix)]
+      ? [mintQuestion()]
       : undefined;
     return { penaltyCards, roleReversalCards };
   };

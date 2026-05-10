@@ -1,7 +1,38 @@
+import sqlite3
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .RoomManager import lobby_manager
+import db.database as db
+import db.utils as dbutil
 
 router = APIRouter()
+
+# room_code -> [{ "question": str, "answers": [str,str,str,str], "correctIndex": int }]
+room_questions: dict[str, list[dict]] = {}
+
+_LETTER_TO_IDX = {"a": 0, "b": 1, "c": 2, "d": 3}
+
+
+def _load_questions_for_room(room_code: str) -> None:
+    if room_code in room_questions:
+        return
+    conn = sqlite3.connect(db.DB_NAME)
+    try:
+        _deck_id, cards = dbutil.get_question_cards_from_random_deck(conn)
+    finally:
+        conn.close()
+    payload = []
+    for c in cards:
+        correct = getattr(c, "correct", None)
+        if isinstance(correct, str):
+            idx = _LETTER_TO_IDX.get(correct.lower(), 0)
+        else:
+            idx = int(correct) if correct is not None else 0
+        payload.append({
+            "question": c.question,
+            "answers": list(c.answers),
+            "correctIndex": idx,
+        })
+    room_questions[room_code] = payload
 
 @router.websocket("/ws/lobby/{room_code}/{player_id}")
 async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
@@ -58,7 +89,12 @@ async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
                     room.status = "playing"
                     # Relay mode: clients run their own state and the backend
                     # only forwards actions on /ws/game/... — no server-side
-                    # engine.
+                    # engine. We pick the deck once here so every client gets
+                    # the same questions in ROOM_INFO.
+                    try:
+                        _load_questions_for_room(room_code)
+                    except Exception as e:
+                        print(f"[start_game] failed to load deck: {e}")
                     await lobby_manager.broadcast_to_room(room_code, {"event": "GAME_STARTING"})
 
     except WebSocketDisconnect:
@@ -97,6 +133,7 @@ async def game_websocket(websocket: WebSocket, room_code: str, player_id: str):
             {"id": p.player_id, "name": p.name}
             for p in room.players.values()
         ],
+        "questions": room_questions.get(room_code, []),
     })
 
     try:
