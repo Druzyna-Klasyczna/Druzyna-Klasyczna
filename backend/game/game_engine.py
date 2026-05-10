@@ -26,7 +26,8 @@ class GameEngine:
 
         self.event_queue = deque([])
 
-        self.question_draw_pile, self.special_draw_pile = self.get_deck(room)
+        self.question_draw_pile = self.get_deck(room)
+        self.special_draw_pile = Deck()
         self.discard_pile = Deck() # for now, maybe separate class later?
         self.played_card = None
 
@@ -34,7 +35,7 @@ class GameEngine:
     
     def get_deck(self, room):
         # TODO: fetch deck from db
-        return Deck(), Deck()
+        return Deck()
 
     def run(self):
         self.init_game()
