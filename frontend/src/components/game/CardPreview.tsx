@@ -128,7 +128,7 @@ export const CardPreview = ({
     state.phase === "ANSWER" && cur?.isMe && state.pendingQuestion !== null;
 
   return (
-    <TactileContainer className="!flex-col !items-stretch !justify-start overflow-hidden">
+    <TactileContainer className="h-full !flex-col !items-stretch !justify-start overflow-hidden">
       <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
         {isAnswerMode ? "Odpowiedz" : "Podgląd karty"}
       </h2>
