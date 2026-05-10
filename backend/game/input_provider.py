@@ -24,7 +24,7 @@ class ConsoleInputProvider(GameInputProvider):
         card_index = input(f"Player {player.id}, choose a card index: ")
         if card_index == 'skip':
             return CardInput()
-        return CardInput(index=int(card_index)-1)
+        return CardInput(index=int(card_index))
     
     def get_answer_selection(self, question_card, player, answer_time):
         print(f"Player {player.id}, answer the question: ")
