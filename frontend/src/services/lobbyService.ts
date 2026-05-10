@@ -1,23 +1,24 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_BASE_URL } from "../lib/config";
+import type { CreateRoomResponse, JoinRoomResponse } from "../types/api";
+
+const postJson = async <T>(path: string, body: unknown): Promise<T> => {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+};
 
 export const lobbyService = {
-  createRoom: async (userName: string) => {
-    const response = await fetch(`${API_BASE}/create-room`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_name: userName }),
-    });
-    if (!response.ok) throw new Error("Błąd tworzenia pokoju");
-    return response.json();
-  },
+  createRoom: (userName: string) =>
+    postJson<CreateRoomResponse>("/create-room", { user_name: userName }),
 
-  joinRoom: async (roomCode: string, userName: string) => {
-    const response = await fetch(`${API_BASE}/room/${roomCode}/join`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_name: userName }),
-    });
-    if (!response.ok) throw new Error("Nie znaleziono pokoju");
-    return response.json();
-  },
+  joinRoom: (roomCode: string, userName: string) =>
+    postJson<JoinRoomResponse>(`/room/${roomCode}/join`, {
+      user_name: userName,
+    }),
 };

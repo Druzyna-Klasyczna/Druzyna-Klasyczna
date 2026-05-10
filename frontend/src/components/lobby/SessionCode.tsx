@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Copy } from "lucide-react";
 
 interface SessionCodeProps {
   code: string;
@@ -11,45 +12,32 @@ export const SessionCode = ({ code }: SessionCodeProps) => {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 1200);
-    } catch (err) {
-      console.error("Copy failed:", err);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // Clipboard unavailable (e.g. insecure context); intentionally silent.
     }
   };
 
   return (
     <div className="flex items-center gap-3">
-      <div className="text-yellow-400 font-black text-2xl tracking-widest">
+      <span className="text-2xl font-black tracking-widest text-yellow-400">
         {code}
-      </div>
+      </span>
 
       <button
+        type="button"
         onClick={handleCopy}
-        className="relative w-10 h-10 flex items-center justify-center border-2 border-white/20 hover:border-yellow-400 transition-colors group"
         title="Kopiuj kod"
+        className="group relative flex h-10 w-10 items-center justify-center border-2 border-white/20 transition-colors hover:border-yellow-400"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-          className="w-5 h-5 text-white group-hover:text-yellow-400 transition-colors"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 16h8M8 12h8m-6-8h6a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z"
-          />
-        </svg>
-
+        <Copy
+          size={18}
+          className="text-white transition-colors group-hover:text-yellow-400"
+        />
         {copied && (
-          <div className="absolute -top-7 text-xs font-black text-yellow-400">
+          <span className="absolute -top-7 text-xs font-black text-yellow-400">
             COPIED
-          </div>
+          </span>
         )}
       </button>
     </div>

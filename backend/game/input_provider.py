@@ -26,7 +26,7 @@ class ConsoleInputProvider(GameInputProvider):
         card_index = input(f"Player {player.id}, choose a card index: ")
         if card_index == 'skip':
             return CardInput()
-        return CardInput(index=int(card_index)-1)
+        return CardInput(index=int(card_index))
     
     async def get_answer_selection(self, question_card, player, answer_time=None):
         print(f"Player {player.id}, answer the question: ")
@@ -34,7 +34,7 @@ class ConsoleInputProvider(GameInputProvider):
         for i, answer in enumerate(question_card.answers, 1):
             print(f"{i}. {answer}")
         answer_index = input(">>> ")
-        return AnswerInput(index=int(answer_index))
+        return AnswerInput(index=int(answer_index-1))
 
 class WebsocketInputProvider(GameInputProvider):
     def __init__(self):

@@ -2,10 +2,12 @@ import asyncio
 from player import GamePlayer
 from deck import Deck
 from input_provider import ConsoleInputProvider, WebsocketInputProvider
-from card import QuestionCard, CardType, PowerUpType
-from game_exceptions import WrongCardException
+from card import QuestionCard, CardType, PowerUpType, EffectType
+from game_exceptions import WrongCardException, DrawPileEmptyException
 from event import GameEvent, EventType
 from collections import deque
+import random
+
 
 class GameEngine:
     def __init__(self, room):
@@ -18,8 +20,9 @@ class GameEngine:
 
         self.event_queue = deque([])
 
-        self.draw_pile = self.get_deck(room)
-        self.discard_pile = Deck()
+        self.question_draw_pile = self.get_deck(room)
+        self.special_draw_pile = Deck()
+        self.discard_pile = Deck() # for now, maybe separate class later?
         self.played_card = None
 
         self.input_provider = WebsocketInputProvider()
@@ -51,7 +54,8 @@ class GameEngine:
         self.add_initial_events()
     
     def shuffle_cards(self):
-        self.draw_pile.shuffle_cards()
+        self.question_draw_pile.shuffle_cards()
+        self.special_draw_pile.shuffle_cards()
 
     def deal_cards(self):
         initial_cards = getattr(self.config, 'initial_deal_cards', 6)
@@ -177,10 +181,18 @@ class GameEngine:
         })
     
     def correct_answer(self, card, player):
-        pass
+        print("Correct!")
+        try:
+            player.add_card(self.special_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
 
     def incorrect_answer(self, card, player):
-        pass
+        print("Incorrect!")
+        try:
+            player.add_card(self.question_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
     
     async def process_effect_event(self, player):
         effect_card = await self.get_player_card_from_input(player)
@@ -189,7 +201,14 @@ class GameEngine:
             await self.sync_private_hands()
     
     def process_effect_card(self, card, player):
-        pass
+        if card.get_card_type() != CardType.EFFECT:
+            raise WrongCardException("card should be of type: effect")
+        
+        player.remove_card(card)
+
+        if card.powerup_type == EffectType.SHUFFLE_PLAYERS:
+            random.shuffle(self.players)
+            self.current_player = self.players.index(player)
 
     async def process_question_event(self, player):
         question_card = await self.get_player_card_from_input(player)
