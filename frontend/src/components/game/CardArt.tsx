@@ -46,7 +46,7 @@ export const CardArt = ({
   const dimensions =
     size === "lg"
       ? "w-full h-full p-4 text-base"
-      : "h-48 w-32 p-2 text-sm";
+      : "h-32 w-24 p-1.5 text-xs";
 
   return (
     <div

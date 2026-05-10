@@ -30,14 +30,14 @@ export const RoundTable = ({ state }: RoundTableProps) => {
   const { players, currentPlayerIdx, direction, phase, pendingQuestion, log } =
     state;
 
-  const lastLog = log.slice(-4);
+  const lastLog = log.slice(-3);
   const RotateIcon = direction === 1 ? RotateCw : RotateCcw;
 
   return (
-    <TactileContainer className="relative col-span-2 !flex-col !items-stretch !justify-center !p-0">
-      <div className="relative h-full w-full overflow-hidden">
+    <TactileContainer className="relative col-span-2 !flex-col !items-stretch !justify-stretch !gap-2 !p-2">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* Round table surface */}
-        <div className="absolute left-1/2 top-1/2 aspect-square w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-gradient-to-br from-[#7a2a26] to-[#3d1311] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25),inset_0_0_60px_rgba(0,0,0,0.6)]">
+        <div className="absolute left-1/2 top-1/2 aspect-square h-[96%] max-h-full -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-gradient-to-br from-[#7a2a26] to-[#3d1311] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25),inset_0_0_60px_rgba(0,0,0,0.6)]">
           {/* Inner felt ring */}
           <div className="absolute inset-[10%] rounded-full border-[3px] border-black/40 bg-[#5a1f1d]" />
 
@@ -74,47 +74,22 @@ export const RoundTable = ({ state }: RoundTableProps) => {
           })}
 
           {/* Center hub */}
-          <div className="absolute left-1/2 top-1/2 flex w-[58%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3">
-            {/* Table icon disc */}
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-[3px] border-black bg-yellow-400 shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
-              <RotateIcon size={28} className="text-black" strokeWidth={3} />
+          <div className="absolute left-1/2 top-1/2 flex w-[58%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-black bg-yellow-400 shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+              <RotateIcon size={24} className="text-black" strokeWidth={3} />
             </div>
 
-            {/* Phase chip */}
-            <div className="border-[3px] border-black bg-yellow-400 px-3 py-1 text-sm font-black uppercase text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+            <div className="border-[3px] border-black bg-yellow-400 px-3 py-1 text-xs font-black uppercase text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
               {PHASE_LABEL[phase]}
             </div>
 
-            {/* Pending-question indicator */}
             {pendingQuestion && (
-              <div className="max-w-[14rem] border-[3px] border-black bg-rose-400 px-3 py-1 text-center text-[11px] font-black uppercase text-black">
+              <div className="max-w-[14rem] border-[3px] border-black bg-rose-400 px-2 py-0.5 text-center text-[10px] font-black uppercase text-black">
                 {players.find((p) => p.id === pendingQuestion.fromPlayerId)?.name}
                 &nbsp;→&nbsp;
                 {players.find((p) => p.id === pendingQuestion.toPlayerId)?.name}
               </div>
             )}
-
-            {/* In-table game log */}
-            <div className="flex w-full flex-col gap-1">
-              {lastLog.length === 0 ? (
-                <div className="text-center text-[11px] italic text-white/50">
-                  Cisza przy stole...
-                </div>
-              ) : (
-                lastLog.map((entry, i) => (
-                  <div
-                    key={`${log.length - lastLog.length + i}`}
-                    className={`border-2 border-black px-2 py-0.5 text-center text-[11px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${
-                      i === lastLog.length - 1
-                        ? "bg-yellow-300 text-black"
-                        : "bg-black/80 text-yellow-400"
-                    }`}
-                  >
-                    {entry}
-                  </div>
-                ))
-              )}
-            </div>
           </div>
         </div>
 
@@ -128,6 +103,28 @@ export const RoundTable = ({ state }: RoundTableProps) => {
             style={polar(seatAngle(i, players.length), SEAT_RADIUS_PCT)}
           />
         ))}
+      </div>
+
+      {/* Game log strip — sits next to (below) the table */}
+      <div className="flex flex-none flex-col gap-1 border-t-2 border-black/40 pt-2">
+        {lastLog.length === 0 ? (
+          <div className="text-center text-[11px] italic text-white/50">
+            Cisza przy stole...
+          </div>
+        ) : (
+          lastLog.map((entry, i) => (
+            <div
+              key={`${log.length - lastLog.length + i}`}
+              className={`truncate border-2 border-black px-2 py-0.5 text-center text-[11px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${
+                i === lastLog.length - 1
+                  ? "bg-yellow-300 text-black"
+                  : "bg-black/80 text-yellow-400"
+              }`}
+            >
+              {entry}
+            </div>
+          ))
+        )}
       </div>
     </TactileContainer>
   );

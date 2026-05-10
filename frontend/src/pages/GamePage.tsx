@@ -45,8 +45,8 @@ const GamePage = () => {
     : null;
 
   return (
-    <div className="relative flex h-screen w-full flex-col gap-4 overflow-hidden bg-[#e53935] p-4 font-bold">
-      <div className="grid min-h-0 flex-1 grid-cols-4 gap-4">
+    <div className="relative flex h-screen w-full flex-col gap-2 overflow-hidden bg-[#e53935] p-3 font-bold">
+      <div className="grid min-h-0 flex-1 grid-cols-4 gap-3">
         <PlayersPanel
           players={state.players}
           currentPlayerId={cur?.id ?? null}

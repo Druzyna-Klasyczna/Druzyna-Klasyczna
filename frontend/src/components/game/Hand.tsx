@@ -36,12 +36,12 @@ export const Hand = ({
   });
 
   return (
-    <TactileContainer className="relative h-64 !flex-col !items-stretch !justify-end pb-2 pt-12">
-      <h2 className="absolute left-4 top-4 text-xl uppercase text-white">
+    <TactileContainer className="relative h-44 flex-none !flex-col !items-stretch !justify-end !p-2 pt-8">
+      <h2 className="absolute left-3 top-2 text-sm uppercase text-white">
         Twoja ręka
       </h2>
 
-      <div className="flex h-full items-end justify-center gap-4">
+      <div className="flex h-full items-end justify-center gap-3">
         {sorted.length === 0 ? (
           <div className="flex h-full items-center justify-center pb-6 text-center text-lg italic text-gray-300">
             Brak kart

@@ -30,9 +30,9 @@ export const HandCard = ({
       playable ? "cursor-pointer" : "cursor-not-allowed opacity-40 grayscale"
     } ${
       isHovered && playable
-        ? "-translate-y-8 scale-105"
+        ? "-translate-y-4 scale-105"
         : playable
-          ? "hover:-translate-y-4"
+          ? "hover:-translate-y-2"
           : ""
     }`}
   >
