@@ -18,6 +18,3 @@ if __name__ == "__main__":
         db.setup_questions.add_deck_questions_table(conn)
         db.setup_questions.add_questions(conn)
 
-    show_quesitons = True 
-    if show_quesitons:
-        db.show_all_questions.show()

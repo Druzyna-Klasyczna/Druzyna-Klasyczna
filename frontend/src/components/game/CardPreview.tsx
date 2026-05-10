@@ -23,9 +23,13 @@ const useCountdown = (startedAt: number, durationMs: number) => {
 const AnswerPanel = ({
   state,
   onAnswer,
+  isResponder,
+  responderName,
 }: {
   state: GameState;
   onAnswer: (idx: number) => void;
+  isResponder: boolean;
+  responderName: string;
 }) => {
   const pq = state.pendingQuestion!;
   const { remaining, total } = useCountdown(pq.startedAt, pq.baseDurationMs);
@@ -34,6 +38,14 @@ const AnswerPanel = ({
 
   return (
     <div className="flex h-full w-full flex-col gap-3">
+      <div
+        className={`border-2 border-black px-2 py-1 text-center text-[11px] font-black uppercase ${
+          isResponder ? "bg-emerald-400 text-black" : "bg-sky-300 text-black"
+        }`}
+      >
+        {isResponder ? "Twoja kolej — odpowiadaj!" : `Odpowiada: ${responderName}`}
+      </div>
+
       {pq.attachedDebuff && (
         <div className="border-2 border-black bg-rose-400 px-2 py-1 text-center text-[11px] font-black uppercase">
           Debuff: {pq.attachedDebuff.name}
@@ -59,16 +71,19 @@ const AnswerPanel = ({
       <div className="flex flex-1 flex-col gap-2">
         {pq.card.answers.map((answer, idx) => {
           const eliminated = pq.eliminatedAnswers.includes(idx);
+          const disabled = eliminated || remaining <= 0 || !isResponder;
           return (
             <button
               key={idx}
               type="button"
-              disabled={eliminated || remaining <= 0}
+              disabled={disabled}
               onClick={() => onAnswer(idx)}
               className={`flex items-center gap-3 border-[3px] border-black px-3 py-2 text-left text-sm font-black uppercase shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-transform ${
                 eliminated
                   ? "cursor-not-allowed bg-gray-300 text-gray-500 line-through opacity-60"
-                  : "bg-white text-black hover:-translate-y-0.5 hover:bg-yellow-200 active:translate-y-0"
+                  : !isResponder
+                    ? "cursor-not-allowed bg-white/70 text-black/70"
+                    : "bg-white text-black hover:-translate-y-0.5 hover:bg-yellow-200 active:translate-y-0"
               }`}
             >
               <span className="flex h-7 w-7 flex-none items-center justify-center border-2 border-black bg-black text-yellow-400">
@@ -189,20 +204,32 @@ export const CardPreview = ({
   hoveredCard,
   onAnswer,
 }: CardPreviewProps) => {
-  const cur = state.players[state.currentPlayerIdx];
   const isAnswerMode =
-    state.phase === "ANSWER" && cur?.isMe && state.pendingQuestion !== null;
+    state.phase === "ANSWER" && state.pendingQuestion !== null;
+  const responder = state.pendingQuestion
+    ? state.players.find((p) => p.id === state.pendingQuestion!.toPlayerId)
+    : null;
+  const isResponder = !!responder?.isMe;
   const flash = useAnswerFlash(state);
 
   return (
     <TactileContainer className="relative h-full !flex-col !items-stretch !justify-start overflow-hidden">
       <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
-        {isAnswerMode ? "Odpowiedz" : "Podgląd karty"}
+        {isAnswerMode
+          ? isResponder
+            ? "Odpowiedz"
+            : "Pytanie w grze"
+          : "Podgląd karty"}
       </h2>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {isAnswerMode ? (
-          <AnswerPanel state={state} onAnswer={onAnswer} />
+          <AnswerPanel
+            state={state}
+            onAnswer={onAnswer}
+            isResponder={isResponder}
+            responderName={responder?.name ?? "?"}
+          />
         ) : hoveredCard ? (
           <div className="flex flex-1 items-stretch">
             <CardArt card={hoveredCard} size="lg">

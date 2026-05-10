@@ -3,6 +3,20 @@ from typing import List, Tuple
 import db.database as db # Assuming your previous fetch functions are here
 from game.card import QuestionCard
 
+
+def get_all_question_cards(conn) -> List[QuestionCard]:
+    """Fetch every question across all decks as a flat list of QuestionCard."""
+    all_questions = db.fetch_all_questions(conn)
+    return [
+        QuestionCard(
+            question=q.question,
+            answers=[q.a, q.b, q.c, q.d],
+            correct=q.proper_answer,
+        )
+        for q in all_questions
+    ]
+
+
 def get_question_cards_from_random_deck(conn) -> Tuple[int, List[QuestionCard]]:
     # 1. Fetch all decks and pick one randomly
     all_decks = db.fetch_all_decks(conn)

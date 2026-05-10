@@ -27,13 +27,45 @@ export interface RemoteQuestion {
   correctIndex: number;
 }
 
-let remoteCounter = 0;
-const newRemoteQuestionCard = (
+export interface QuestionDeck {
+  order: RemoteQuestion[];
+  cursor: number;
+}
+
+const shuffleWith = <T>(items: T[], rng: () => number): T[] => {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+export const makeQuestionDeck = (
   pool: RemoteQuestion[],
+  rng: () => number,
+): QuestionDeck => ({ order: shuffleWith(pool, rng), cursor: 0 });
+
+let remoteCounter = 0;
+
+const drawNextTemplate = (
+  deck: QuestionDeck,
+  rng: () => number,
+): RemoteQuestion => {
+  if (deck.order.length === 0) throw new Error("Empty question deck");
+  if (deck.cursor >= deck.order.length) {
+    deck.order = shuffleWith(deck.order, rng);
+    deck.cursor = 0;
+  }
+  return deck.order[deck.cursor++];
+};
+
+const newDeckQuestionCard = (
+  deck: QuestionDeck,
   rng: () => number,
   idPrefix: string,
 ): QuestionCard => {
-  const tpl = pool[Math.floor(rng() * pool.length)];
+  const tpl = drawNextTemplate(deck, rng);
   return {
     id: `${idPrefix}rq-${++remoteCounter}`,
     kind: "QUESTION",
@@ -47,7 +79,7 @@ export const makeNetworkedPlayers = (
   roomPlayers: { id: string; name: string }[],
   myId: string,
   rng: () => number,
-  remoteQuestions: RemoteQuestion[] = [],
+  deck: QuestionDeck | null,
 ): GamePlayer[] =>
   roomPlayers.map((rp) => ({
     id: rp.id,
@@ -56,16 +88,28 @@ export const makeNetworkedPlayers = (
     isMe: rp.id === myId,
     hand: [
       ...Array.from({ length: STARTING_QUESTIONS }, () =>
-        remoteQuestions.length > 0
-          ? newRemoteQuestionCard(remoteQuestions, rng, `${rp.id}-`)
-          : newQuestionCard(rng, `${rp.id}-`),
+        deck ? newDeckQuestionCard(deck, rng, `${rp.id}-`) : newQuestionCard(rng, `${rp.id}-`),
       ),
       newSupportCard(rng, `${rp.id}-`),
     ],
   }));
 
-export const makeRemoteQuestionCard = (
-  pool: RemoteQuestion[],
+export const drawQuestionFromDeck = (
+  deck: QuestionDeck,
   rng: () => number,
   idPrefix: string,
-): QuestionCard => newRemoteQuestionCard(pool, rng, idPrefix);
+): QuestionCard => newDeckQuestionCard(deck, rng, idPrefix);
+
+export const burnFromDeck = (
+  deck: QuestionDeck,
+  count: number,
+  rng: () => number,
+): void => {
+  for (let i = 0; i < count; i++) {
+    if (deck.cursor >= deck.order.length) {
+      deck.order = shuffleWith(deck.order, rng);
+      deck.cursor = 0;
+    }
+    deck.cursor++;
+  }
+};
