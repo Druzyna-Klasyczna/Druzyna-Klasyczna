@@ -10,7 +10,7 @@ export const TactileContainer = ({
     className = "",
 }: TactileContainerProps) => {
     return (
-        <div className="relative inline-block w-full">
+        <div className="relative inline-block w-fit">
             <div
                 className={`
                     bg-[#333333]
