@@ -17,7 +17,7 @@ def _load_questions_for_room(room_code: str) -> None:
         return
     conn = sqlite3.connect(db.DB_NAME)
     try:
-        _deck_id, cards = dbutil.get_question_cards_from_random_deck(conn)
+        cards = dbutil.get_all_question_cards(conn)
     finally:
         conn.close()
     payload = []

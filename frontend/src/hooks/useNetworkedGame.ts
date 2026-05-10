@@ -3,8 +3,11 @@ import { WS_BASE_URL } from "../lib/config";
 import { makeRng, seedFromString } from "../lib/rng";
 import { newQuestionCard, newSupportCard } from "../mocks/cards";
 import {
+  burnFromDeck,
+  drawQuestionFromDeck,
   makeNetworkedPlayers,
-  makeRemoteQuestionCard,
+  makeQuestionDeck,
+  type QuestionDeck,
   type RemoteQuestion,
 } from "../mocks/players";
 import type {
@@ -28,6 +31,19 @@ const isRoomInfo = (msg: unknown): msg is RoomInfo =>
   typeof msg === "object" &&
   (msg as { event?: string }).event === "ROOM_INFO";
 
+// How many question cards an action minted from the shared deck. Spectators
+// must advance their local cursor by the same amount or they'll re-deal the
+// same questions on their own turn.
+const countQuestionDraws = (action: Action): number => {
+  let n = 0;
+  if (action.type === "ANSWER_QUESTION" || action.type === "TIMEOUT") {
+    n += action.penaltyCards?.length ?? 0;
+    n += (action.roleReversalCards ?? []).filter((c) => c.kind === "QUESTION")
+      .length;
+  }
+  return n;
+};
+
 export const useNetworkedGame = (
   roomCode: string | null,
   playerId: string | null,
@@ -38,7 +54,7 @@ export const useNetworkedGame = (
   const rng = useRef<() => number>(() => Math.random());
   const stateRef = useRef<GameState>(state);
   stateRef.current = state;
-  const questionPool = useRef<RemoteQuestion[]>([]);
+  const questionDeck = useRef<QuestionDeck | null>(null);
 
   useEffect(() => {
     if (!roomCode || !playerId) return;
@@ -58,18 +74,25 @@ export const useNetworkedGame = (
         return;
       }
       if (isRoomInfo(msg)) {
-        questionPool.current = msg.questions ?? [];
+        const pool: RemoteQuestion[] = msg.questions ?? [];
+        questionDeck.current =
+          pool.length > 0 ? makeQuestionDeck(pool, rng.current) : null;
         const players = makeNetworkedPlayers(
           msg.players,
           playerId,
           rng.current,
-          questionPool.current,
+          questionDeck.current,
         );
         dispatch({ type: "INIT_GAME", players });
         return;
       }
       // Remote action — dispatch locally without re-broadcasting.
-      dispatch(msg as Action);
+      const remote = msg as Action;
+      if (questionDeck.current) {
+        const burns = countQuestionDraws(remote);
+        if (burns > 0) burnFromDeck(questionDeck.current, burns, rng.current);
+      }
+      dispatch(remote);
     };
 
     socket.onclose = (e) => {
@@ -108,8 +131,8 @@ export const useNetworkedGame = (
 
     const idPrefix = `${playerId ?? "x"}-`;
     const mintQuestion = () =>
-      questionPool.current.length > 0
-        ? makeRemoteQuestionCard(questionPool.current, rng.current, idPrefix)
+      questionDeck.current
+        ? drawQuestionFromDeck(questionDeck.current, rng.current, idPrefix)
         : newQuestionCard(rng.current, idPrefix);
 
     if (correct) {
