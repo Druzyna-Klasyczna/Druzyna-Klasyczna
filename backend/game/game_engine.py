@@ -7,6 +7,7 @@ from event import GameEvent, EventType
 from collections import deque
 import random
 
+
 class RoomSettingsMock:
     def __init__(self):
         self.deck_id = 1
@@ -99,6 +100,7 @@ class GameEngine:
             self.process_powerup_card(powerup_card, player)
     
     def process_powerup_card(self, card, player):
+        # ! DON'T USE THIS, IT'S INCOMPLETE
         if card.get_card_type() != CardType.POWER_UP:
             raise WrongCardException("card should be of type: power-up")
         
@@ -186,8 +188,6 @@ class GameEngine:
         if card_index is None:
             return None
         card = player.get_card(card_index)
-        print(player.cards, card, card_index)
-        return card
     
     def next_turn(self):
         self.current_player = self.get_next_player_index()

@@ -1,11 +1,33 @@
-import sqlite3
-from db.database import DB_NAME
-
-def add_questions():
-    conn = sqlite3.connect(DB_NAME)
+def add_decks(conn):
+    """Create decks table if it doesn't exist."""
     cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS decks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        deck_name TEXT NOT NULL
+    );
+    """)
+    conn.commit()
+    print("Decks table ready.")
 
-    # Create table
+
+def add_deck_questions_table(conn):
+    """Create junction table for deck-question relations."""
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS deck_questions (
+        deck_id INTEGER NOT NULL,
+        question_id INTEGER NOT NULL,
+        PRIMARY KEY (deck_id, question_id),
+        FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE,
+        FOREIGN KEY (question_id) REFERENCES Questions_abcd(id) ON DELETE CASCADE
+    );
+    """)
+    conn.commit()
+    print("Deck-questions table ready.")
+
+def add_questions_table(conn):
+    cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Questions_abcd (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,8 +37,12 @@ def add_questions():
         c TEXT,
         d TEXT,
         proper_answer TEXT
-    )
+    );
     """)
+
+
+def add_questions(conn):
+    cursor = conn.cursor()
 
     questions = [
 
@@ -137,14 +163,40 @@ def add_questions():
         ("OOP helps break?", "Complex problems", "Databases", "Servers", "Networks", "a"),
 
     ]
-        
+
+    question_ids = []
+    for q in questions:
+        cursor.execute("""
+            INSERT INTO Questions_abcd (question, a, b, c, d, proper_answer)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, q)
+        question_ids.append(cursor.lastrowid) # Captures the real ID from the DB
+
+    deck_names = ["OOP Basics", "Inheritance & Polymorphism", "Advanced OOP & Design Patterns"]
+    for name in deck_names:
+        cursor.execute("INSERT INTO decks (deck_name) VALUES (?)", (name,))
+
+    cursor.execute("SELECT id, deck_name FROM decks")
+    deck_id_map = {name: did for did, name in cursor.fetchall()}
+
+    decks_config = {
+        "OOP Basics": [0, 1, 2, 10, 13, 14, 15, 20, 21, 22, 55, 57], # Using indices
+        "Inheritance & Polymorphism": [6, 7, 8, 9, 16, 17, 18, 19, 23, 24, 28, 29, 30],
+        "Advanced OOP & Design Patterns": list(range(3, 6)) + [11, 12] + list(range(25, 28)) + list(range(31, 55)) + [56]
+    }
+
+    deck_question_links = []
+    for deck_name, indices in decks_config.items():
+        deck_id = deck_id_map[deck_name]
+        for idx in indices:
+            if idx < len(question_ids): # Safety check
+                deck_question_links.append((deck_id, question_ids[idx]))
+
     cursor.executemany("""
-    INSERT INTO Questions_abcd
-    (question, a, b, c, d, proper_answer)
-    VALUES (?, ?, ?, ?, ?, ?)
-    """, questions)
+        INSERT INTO deck_questions (deck_id, question_id)
+        VALUES (?, ?)
+    """, deck_question_links)
 
     conn.commit()
-    conn.close()
+    print("Database populated successfully.")
 
-    print("Questions added.")
