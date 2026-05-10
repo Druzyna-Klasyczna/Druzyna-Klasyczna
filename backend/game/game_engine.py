@@ -68,7 +68,9 @@ class GameEngine:
             })
     
     def add_initial_events(self):
-        self.add_all_player_events(self.players[0])
+        self.add_event(self.players[0], EventType.EFFECT)
+        self.add_event(self.players[0], EventType.QUESTION)
+        self.add_event(self.players[0], EventType.DEBUFF)
     
     def add_all_player_events(self, player):
         self.add_event(player, EventType.POWER_UP)
