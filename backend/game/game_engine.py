@@ -1,10 +1,11 @@
 from player import GamePlayer
 from deck import Deck
 from input_provider import ConsoleInputProvider
-from card import QuestionCard, CardType, PowerUpType
+from card import QuestionCard, CardType, PowerUpType, EffectType
 from game_exceptions import WrongCardException, DrawPileEmptyException
 from event import GameEvent, EventType
 from collections import deque
+import random
 
 class RoomSettingsMock:
     def __init__(self):
@@ -146,7 +147,14 @@ class GameEngine:
             self.process_effect_card(effect_card, player)
     
     def process_effect_card(self, card, player):
-        pass
+        if card.get_card_type() != CardType.EFFECT:
+            raise WrongCardException("card should be of type: effect")
+        
+        player.remove_card(card)
+
+        if card.powerup_type == EffectType.SHUFFLE_PLAYERS:
+            random.shuffle(self.players)
+            self.current_player = self.players.index(player)
 
     def process_question_event(self, player):
         print("QUESTION")
@@ -177,6 +185,7 @@ class GameEngine:
         if card_index is None:
             return None
         card = player.get_card(card_index)
+        print(player.cards, card, card_index)
         return card
     
     def next_turn(self):
