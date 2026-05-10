@@ -32,7 +32,7 @@ const Section = ({
     <h2 className="mb-4 flex-none border-b-4 border-black pb-2 text-2xl uppercase text-white">
       {title}
     </h2>
-    <div className="flex-1 min-h-0">{children}</div>
+    <div className="flex-1 w-full min-h-0">{children}</div>
   </TactileContainer>
 );
 
