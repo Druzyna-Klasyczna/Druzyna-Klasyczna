@@ -32,7 +32,7 @@ class ConsoleInputProvider(GameInputProvider):
         for i, answer in enumerate(question_card.answers, 1):
             print(f"{i}. {answer}")
         answer_index = input(">>> ")
-        return AnswerInput(index=int(answer_index))
+        return AnswerInput(index=int(answer_index-1))
 
 class WebsocketInputProvider(GameInputProvider):
     def get_card_selection(self, player):
