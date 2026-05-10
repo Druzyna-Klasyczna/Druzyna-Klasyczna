@@ -128,34 +128,32 @@ export const CardPreview = ({
     state.phase === "ANSWER" && cur?.isMe && state.pendingQuestion !== null;
 
   return (
-    <TactileContainer className="!flex-col !items-stretch !justify-start">
-      <h2 className="mb-3 border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
+    <TactileContainer className="!flex-col !items-stretch !justify-start overflow-hidden">
+      <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-center text-lg uppercase text-white">
         {isAnswerMode ? "Odpowiedz" : "Podgląd karty"}
       </h2>
 
-      {isAnswerMode ? (
-        <AnswerPanel state={state} onAnswer={onAnswer} />
-      ) : hoveredCard ? (
-        <div className="flex flex-1 items-stretch">
-          <CardArt
-            card={hoveredCard}
-            size="lg"
-            className="min-h-[20rem]"
-          >
-            {hoveredCard.kind === "QUESTION" ? (
-              <QuestionDetails card={hoveredCard} />
-            ) : (
-              <SupportDetails card={hoveredCard} />
-            )}
-          </CardArt>
-        </div>
-      ) : (
-        <div className="flex flex-1 items-center justify-center text-center text-base font-bold text-gray-400">
-          Najedź na kartę,
-          <br />
-          aby zobaczyć szczegóły
-        </div>
-      )}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {isAnswerMode ? (
+          <AnswerPanel state={state} onAnswer={onAnswer} />
+        ) : hoveredCard ? (
+          <div className="flex flex-1 items-stretch">
+            <CardArt card={hoveredCard} size="lg">
+              {hoveredCard.kind === "QUESTION" ? (
+                <QuestionDetails card={hoveredCard} />
+              ) : (
+                <SupportDetails card={hoveredCard} />
+              )}
+            </CardArt>
+          </div>
+        ) : (
+          <div className="flex flex-1 items-center justify-center text-center text-base font-bold text-gray-400">
+            Najedź na kartę,
+            <br />
+            aby zobaczyć szczegóły
+          </div>
+        )}
+      </div>
     </TactileContainer>
   );
 };

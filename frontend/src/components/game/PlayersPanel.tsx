@@ -12,12 +12,12 @@ export const PlayersPanel = ({
   currentPlayerId,
   pendingTargetId,
 }: PlayersPanelProps) => (
-  <TactileContainer className="!flex-col !items-stretch !justify-start">
-    <h2 className="mb-4 border-b-4 border-black pb-2 text-2xl uppercase text-white">
+  <TactileContainer className="!flex-col !items-stretch !justify-start overflow-hidden">
+    <h2 className="mb-3 flex-none border-b-4 border-black pb-2 text-2xl uppercase text-white">
       Gracze
     </h2>
 
-    <ul className="flex flex-col gap-3">
+    <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
       {players.map((p) => {
         const questions = p.hand.filter((c) => c.kind === "QUESTION").length;
         const support = p.hand.length - questions;

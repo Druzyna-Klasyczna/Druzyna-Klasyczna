@@ -34,7 +34,7 @@ export const RoundTable = ({ state }: RoundTableProps) => {
   const RotateIcon = direction === 1 ? RotateCw : RotateCcw;
 
   return (
-    <TactileContainer className="relative col-span-2 !flex-col !items-stretch !justify-stretch !gap-2 !p-2">
+    <TactileContainer className="relative !flex-col !items-stretch !justify-stretch !gap-2 !p-2">
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* Round table surface */}
         <div className="absolute left-1/2 top-1/2 aspect-square h-[96%] max-h-full -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-gradient-to-br from-[#7a2a26] to-[#3d1311] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25),inset_0_0_60px_rgba(0,0,0,0.6)]">
