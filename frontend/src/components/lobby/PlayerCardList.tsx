@@ -4,7 +4,6 @@ interface Player {
     id: string;
     name: string;
     isAdmin: boolean;
-    score: number;
     avatarUrl?: string;
 }
 
@@ -30,7 +29,6 @@ export const PlayerCardList = ({
                 <PlayerCard
                     key={player.id}
                     name={player.name}
-                    score={player.score}
                     isAdmin={player.isAdmin}
                     isMe={player.id === currentUserId}
                     canKick={amIAdmin && player.id !== currentUserId}
