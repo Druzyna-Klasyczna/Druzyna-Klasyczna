@@ -1,8 +1,15 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'game')))
+
+
 from .ws_router import router as ws_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .RoomManager import lobby_manager
+
+
 
 app = FastAPI()
 
