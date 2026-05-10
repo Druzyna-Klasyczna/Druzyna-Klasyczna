@@ -27,10 +27,9 @@ const seatAngle = (idx: number, total: number) =>
   (idx / total) * Math.PI * 2 + Math.PI / 2;
 
 export const RoundTable = ({ state }: RoundTableProps) => {
-  const { players, currentPlayerIdx, direction, phase, pendingQuestion, log } =
+  const { players, currentPlayerIdx, direction, phase, pendingQuestion } =
     state;
 
-  const lastLog = log.slice(-4).reverse();
   const RotateIcon = direction === 1 ? RotateCw : RotateCcw;
 
   return (
@@ -103,23 +102,6 @@ export const RoundTable = ({ state }: RoundTableProps) => {
             style={polar(seatAngle(i, players.length), SEAT_RADIUS_PCT)}
           />
         ))}
-
-        {/* Subtle log floating in the bottom-left corner of the table area */}
-        <div className="pointer-events-none absolute bottom-2 left-2 flex max-w-[16rem] flex-col gap-1">
-          {lastLog.map((entry, i) => (
-            <div
-              key={`${log.length - i}`}
-              className={`truncate border-2 border-black px-2 py-0.5 text-[11px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-opacity ${
-                i === 0
-                  ? "bg-yellow-300 text-black opacity-100"
-                  : "bg-black/80 text-yellow-400"
-              }`}
-              style={i > 0 ? { opacity: Math.max(0.3, 1 - i * 0.2) } : undefined}
-            >
-              {entry}
-            </div>
-          ))}
-        </div>
       </div>
     </TactileContainer>
   );

@@ -51,7 +51,7 @@ export const PhaseBanner = ({
 
   return (
     <TactileContainer
-      className={`flex-none !p-3 ${
+      className={`min-h-[3.5rem] flex-none !p-3 ${
         myTurn ? "!bg-yellow-300" : "!bg-[#3a3a14]"
       }`}
     >
@@ -62,7 +62,7 @@ export const PhaseBanner = ({
       >
         {message}
       </span>
-      {action}
+      <div className="flex w-24 flex-none justify-end">{action}</div>
     </TactileContainer>
   );
 };
