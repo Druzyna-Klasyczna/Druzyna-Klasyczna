@@ -1,13 +1,7 @@
-import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .RoomManager import lobby_manager
 
-from game_engine import GameEngine
-from input_provider import WebsocketInputProvider
-
 router = APIRouter()
-
-active_games = {}
 
 @router.websocket("/ws/lobby/{room_code}/{player_id}")
 async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
@@ -62,35 +56,19 @@ async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
             elif action == "START_GAME":
                 if room.players.get(player_id) and room.players[player_id].is_host and room.can_start():
                     room.status = "playing"
-                    
-                    engine = GameEngine(room)
-                    engine.lobby_manager = lobby_manager
-                    engine.input_provider = WebsocketInputProvider()
-                    
-                    for pid in room.players.keys():
-                        engine.input_provider.register_player(pid)
-                    
-                    active_games[room_code] = engine
-                    asyncio.create_task(engine.run())
-                    # -----------------------------
-
+                    # Relay mode: clients run their own state and the backend
+                    # only forwards actions on /ws/game/... — no server-side
+                    # engine.
                     await lobby_manager.broadcast_to_room(room_code, {"event": "GAME_STARTING"})
 
-            elif action == "PLAY_CARD":
-                engine = active_games.get(room_code)
-                if engine and player_id in engine.input_provider.mailboxes:
-                    await engine.input_provider.mailboxes[player_id].put({
-                        "card_index": payload.get("card_index")
-                    })
-
-            elif action == "ANSWER_QUESTION":
-                engine = active_games.get(room_code)
-                if engine and player_id in engine.input_provider.mailboxes:
-                    await engine.input_provider.mailboxes[player_id].put({
-                        "answer_index": payload.get("answer_index")
-                    })
-
     except WebSocketDisconnect:
+        # If the game has started, the client is just navigating away from
+        # the lobby route to the game route — don't tear down their player or
+        # connection slot, the game websocket will replace it.
+        current = lobby_manager.get_room(room_code)
+        if current and current.status == "playing":
+            return
+
         lobby_manager.remove_player(room_code, player_id)
         if player_id in lobby_manager.active_connections:
             del lobby_manager.active_connections[player_id]

@@ -94,10 +94,12 @@ export const useNetworkedGame = (
     const roleReversal = debuff?.type === "ROLE_REVERSAL";
     const responder = s.players.find((p) => p.id === pq.toPlayerId);
 
+    const idPrefix = `${playerId ?? "x"}-`;
+
     if (correct) {
       const rewardCards: SupportCard[] = Array.from(
         { length: multiplier },
-        () => newSupportCard(rng.current) as SupportCard,
+        () => newSupportCard(rng.current, idPrefix) as SupportCard,
       );
       let timeWarpDropId: string | undefined;
       if (debuff?.type === "TIME_WARP" && responder) {
@@ -108,17 +110,17 @@ export const useNetworkedGame = (
         }
       }
       const roleReversalCards: Card[] | undefined = roleReversal
-        ? [newSupportCard(rng.current)]
+        ? [newSupportCard(rng.current, idPrefix)]
         : undefined;
       return { rewardCards, timeWarpDropId, roleReversalCards };
     }
 
     const penaltyCards: QuestionCard[] = Array.from(
       { length: multiplier },
-      () => newQuestionCard(rng.current),
+      () => newQuestionCard(rng.current, idPrefix),
     );
     const roleReversalCards: Card[] | undefined = roleReversal
-      ? [newQuestionCard(rng.current)]
+      ? [newQuestionCard(rng.current, idPrefix)]
       : undefined;
     return { penaltyCards, roleReversalCards };
   };
