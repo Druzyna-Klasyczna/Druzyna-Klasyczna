@@ -17,6 +17,7 @@ const toLobbyPlayer = (p: Player): LobbyPlayer => ({
   id: p.player_id,
   name: p.name,
   isAdmin: p.is_host,
+  isReady: p.is_ready,
   avatarUrl: avatarUrl(p.name),
 });
 
@@ -41,7 +42,10 @@ export const Lobby = () => {
   const playerId = searchParams.get("id");
   const navigate = useNavigate();
 
-  const { room, kickPlayer, startGame } = useLobby(roomCode, playerId);
+  const { room, kickPlayer, startGame, toggleReady } = useLobby(
+    roomCode,
+    playerId,
+  );
 
   if (!room || !playerId) {
     return (
@@ -55,6 +59,7 @@ export const Lobby = () => {
 
   const players = Object.values(room.players).map(toLobbyPlayer);
   const isHost = !!room.players[playerId]?.is_host;
+  const canStart = players.length >= 2 && players.every((p) => p.isReady);
 
   return (
     <div className="flex h-screen w-full flex-col gap-6 overflow-hidden bg-[#e53935] p-6">
@@ -65,6 +70,7 @@ export const Lobby = () => {
             currentUserId={playerId}
             onKick={kickPlayer}
             onLeave={() => navigate("/")}
+            onToggleReady={toggleReady}
           />
         </Section>
 
@@ -76,6 +82,7 @@ export const Lobby = () => {
           <GameConfig
             roomCode={room.room_code}
             isHost={isHost}
+            canStart={canStart}
             onStart={startGame}
           />
         </Section>

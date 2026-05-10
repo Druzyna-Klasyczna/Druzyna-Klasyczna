@@ -5,6 +5,7 @@ import { SessionCode } from "./SessionCode";
 interface GameConfigProps {
   roomCode: string;
   isHost?: boolean;
+  canStart?: boolean;
   onStart?: () => void;
 }
 
@@ -15,7 +16,12 @@ const labelClass =
 const checkboxLabelClass =
   "text-sm font-black italic uppercase text-white transition-colors group-hover:text-yellow-400";
 
-export const GameConfig = ({ roomCode, isHost, onStart }: GameConfigProps) => (
+export const GameConfig = ({
+  roomCode,
+  isHost,
+  canStart = false,
+  onStart,
+}: GameConfigProps) => (
   <div className="flex h-full flex-col justify-between">
     <div className="p-2">
       <TactileContainer>
@@ -54,10 +60,20 @@ export const GameConfig = ({ roomCode, isHost, onStart }: GameConfigProps) => (
     </div>
 
     {isHost && (
-      <div className="flex shrink-0 items-center justify-center p-2">
-        <TactileButton size="lg" color="yellow" onClick={onStart}>
+      <div className="flex shrink-0 flex-col items-center justify-center gap-2 p-2">
+        <TactileButton
+          size="lg"
+          color="yellow"
+          onClick={onStart}
+          disabled={!canStart}
+        >
           START
         </TactileButton>
+        {!canStart && (
+          <span className="text-center text-[11px] font-black italic uppercase text-white/60">
+            Wszyscy gracze (min. 2) muszą być gotowi
+          </span>
+        )}
       </div>
     )}
   </div>

@@ -36,3 +36,7 @@ export type LobbyClientAction =
   | { action: "UPDATE_SETTINGS"; settings: Partial<RoomSettings> }
   | { action: "KICK_PLAYER"; target_id: string }
   | { action: "START_GAME" };
+
+export type GameServerEvent = { event: string; [key: string]: unknown };
+export type GameClientAction = { action: string; [key: string]: unknown };
+

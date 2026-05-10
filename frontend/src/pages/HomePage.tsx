@@ -8,24 +8,27 @@ const HomePage = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [roomCode, setRoomCode] = useState("");
   const [userName, setUserName] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleHost = async () => {
+    setError(null);
     if (!userName.trim()) {
-      alert("Najpierw podaj swój nick!");
+      setError("Najpierw podaj swój nick!");
       return;
     }
     try {
       const data = await lobbyService.createRoom(userName);
       navigate(`/lobby?code=${data.join_code}&id=${data.host_id}`);
     } catch {
-      alert("Nie udało się połączyć z serwerem.");
+      setError("Nie udało się połączyć z serwerem.");
     }
   };
 
   const handleJoin = async () => {
+    setError(null);
     if (!userName.trim() || !roomCode.trim()) {
-      alert("Podaj nick i kod pokoju!");
+      setError("Podaj nick i kod pokoju!");
       return;
     }
     const code = roomCode.toUpperCase();
@@ -33,7 +36,7 @@ const HomePage = () => {
       const data = await lobbyService.joinRoom(code, userName);
       navigate(`/lobby?code=${code}&id=${data.player_id}`);
     } catch {
-      alert("Pokój nie istnieje lub gra już trwa!");
+      setError("Pokój nie istnieje lub gra już trwa!");
     }
   };
 
@@ -70,7 +73,10 @@ const HomePage = () => {
 
               <button
                 type="button"
-                onClick={() => setIsJoining(false)}
+                onClick={() => {
+                  setIsJoining(false);
+                  setError(null);
+                }}
                 className="text-lg font-bold text-white transition-all hover:text-gray-600"
               >
                 ← Wróć
@@ -83,6 +89,15 @@ const HomePage = () => {
             </div>
           )}
         </TactileContainer>
+
+        {error && (
+          <div
+            role="alert"
+            className="w-full border-[3px] border-black bg-yellow-300 px-4 py-2 text-center text-base font-black uppercase text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+          >
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );
