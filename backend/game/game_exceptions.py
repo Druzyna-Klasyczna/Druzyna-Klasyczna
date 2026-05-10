@@ -3,3 +3,6 @@ class GameException(Exception):
 
 class DrawPileEmptyException(GameException):
     pass
+
+class WrongCardException(GameException):
+    pass

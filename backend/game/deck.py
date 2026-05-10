@@ -4,11 +4,17 @@ from game_exceptions import DrawPileEmptyException
 class Deck:
     def __init__(self):
         self.cards = [1,2,3,4]*10 # ! hardcoded for now
+    
+    def push_card(self, card):
+        self.cards.append(card)
 
     def pop_card(self):
         if len(self.cards) == 0:
             raise DrawPileEmptyException("pop from empty pile")
         return self.cards.pop()
+    
+    def is_empty(self):
+        return len(self.cards) == 0
 
     def shuffle_cards(self):
         random.shuffle(self.cards)
