@@ -2,7 +2,7 @@ from player import GamePlayer
 from deck import Deck
 from input_provider import ConsoleInputProvider
 from card import QuestionCard, CardType, PowerUpType
-from game_exceptions import WrongCardException
+from game_exceptions import WrongCardException, DrawPileEmptyException
 from event import GameEvent, EventType
 from collections import deque
 
@@ -127,10 +127,17 @@ class GameEngine:
     
     def correct_answer(self, card, player):
         print("Correct!")
+        try:
+            player.add_card(self.special_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
 
     def incorrect_answer(self, card, player):
-        # kara 
         print("Incorrect!")
+        try:
+            player.add_card(self.question_draw_pile.pop_card())
+        except DrawPileEmptyException:
+            pass # if the pile is empty, don't do anything
     
     def process_effect_event(self, player):
         print("EFFECT")
