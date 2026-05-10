@@ -54,7 +54,6 @@ export interface GamePlayer {
   avatarUrl?: string;
   hand: Card[];
   isMe: boolean;
-  isBot: boolean;
 }
 
 export interface PendingQuestion {

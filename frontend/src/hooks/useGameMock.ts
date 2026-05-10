@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer } from "react";
 import { newQuestionCard, newSupportCard } from "../mocks/cards";
 import { makeMockPlayers } from "../mocks/players";
 import type {
@@ -13,7 +13,6 @@ import type {
 } from "../types/game";
 
 const BASE_TIMER_MS = 30000;
-const BOT_DELAY = () => 900 + Math.random() * 900;
 
 type Action =
   | { type: "ANSWER_QUESTION"; idx: number }
@@ -386,8 +385,6 @@ export interface GameActions {
 
 export const useGameMock = (myName: string) => {
   const [state, dispatch] = useReducer(reducer, myName, initialState);
-  const stateRef = useRef(state);
-  stateRef.current = state;
 
   const actions: GameActions = {
     answerQuestion: (idx) => dispatch({ type: "ANSWER_QUESTION", idx }),
@@ -401,74 +398,6 @@ export const useGameMock = (myName: string) => {
     skipDebuff: () => dispatch({ type: "SKIP_DEBUFF" }),
     restart: () => dispatch({ type: "RESTART", myName }),
   };
-
-  // Bot driver
-  useEffect(() => {
-    if (state.phase === "RESULT") return;
-    const current = state.players[state.currentPlayerIdx];
-    if (!current?.isBot) return;
-
-    const timeoutId = window.setTimeout(() => {
-      const s = stateRef.current;
-      if (s.phase === "RESULT") return;
-      const cur = s.players[s.currentPlayerIdx];
-      if (!cur?.isBot) return;
-
-      switch (s.phase) {
-        case "ANSWER": {
-          if (!s.pendingQuestion) return;
-          const powerUps = cur.hand.filter(
-            (c) => c.kind === "POWER_UP",
-          ) as PowerUpCard[];
-          if (powerUps.length > 0 && Math.random() < 0.15) {
-            actions.playPowerUp(powerUps[0].id);
-            return;
-          }
-          const correctChance = 0.7;
-          const idx =
-            Math.random() < correctChance
-              ? s.pendingQuestion.card.correctIndex
-              : Math.floor(Math.random() * s.pendingQuestion.card.answers.length);
-          actions.answerQuestion(idx);
-          return;
-        }
-        case "EFFECT": {
-          const effects = cur.hand.filter((c) => c.kind === "EFFECT");
-          if (effects.length > 0 && Math.random() < 0.3) {
-            actions.playEffect(effects[0].id);
-            return;
-          }
-          actions.skipEffect();
-          return;
-        }
-        case "QUESTION": {
-          const questions = cur.hand.filter((c) => c.kind === "QUESTION");
-          if (questions.length === 0) return;
-          const target = nextPlayerIdx(
-            s.players,
-            s.currentPlayerIdx,
-            s.direction,
-          );
-          const card = questions[Math.floor(Math.random() * questions.length)];
-          actions.playQuestion(card.id, s.players[target].id);
-          return;
-        }
-        case "DEBUFF": {
-          const debuffs = cur.hand.filter((c) => c.kind === "DEBUFF");
-          if (debuffs.length > 0 && Math.random() < 0.3) {
-            actions.attachDebuff(debuffs[0].id);
-            return;
-          }
-          actions.skipDebuff();
-          return;
-        }
-      }
-    }, BOT_DELAY());
-
-    return () => window.clearTimeout(timeoutId);
-    // actions are stable via dispatch; we only depend on key state slices
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.phase, state.currentPlayerIdx, state.turnNumber, state.pendingQuestion?.card.id]);
 
   // Human timeout (when it's "me" answering and the timer expires)
   useEffect(() => {
