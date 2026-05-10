@@ -1,41 +1,42 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
 
+@dataclass
 class CardInput:
-    def __init__(self, card_index=None):
-        self.card_index = card_index
+    index: Optional[int] = None
 
+@dataclass
 class AnswerInput:
-    def __init__(self, answer_index=None):
-        self.answer_index = answer_index
+    index: Optional[int] = None
 
 class GameInputProvider(ABC):
     @abstractmethod
-    def get_action(self, player):
+    def get_card_selection(self, player):
         pass
 
     @abstractmethod
-    def answer_question(self, question_card, player, answer_time):
+    def get_answer_selection(self, question_card, player, answer_time):
         pass
 
 class ConsoleInputProvider(GameInputProvider):
-    def get_action(self, player):
+    def get_card_selection(self, player):
         card_index = input(f"Player {player.id}, choose a card index: ")
         if card_index == 'skip':
             return CardInput()
-        return CardInput(int(card_index)-1)
+        return CardInput(index=int(card_index)-1)
     
-    def answer_question(self, question_card, player, answer_time):
+    def get_answer_selection(self, question_card, player, answer_time):
         print(f"Player {player.id}, answer the question: ")
         print(question_card.question)
         for i, answer in enumerate(question_card.answers, 1):
             print(f"{i}. {answer}")
         answer_index = input(">>> ")
-        return AnswerInput(int(answer_index))
+        return AnswerInput(index=int(answer_index))
 
 class WebsocketInputProvider(GameInputProvider):
-    def get_action(self, player):
-
+    def get_card_selection(self, player):
         pass
 
-    def answer_question(self, question_card, player, answer_time):
+    def get_answer_selection(self, question_card, player, answer_time):
         pass

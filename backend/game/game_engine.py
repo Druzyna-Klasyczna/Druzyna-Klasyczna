@@ -108,13 +108,13 @@ class GameEngine:
             self.add_event_to_start(prev_player, EventType.ANSWER)
     
     def process_answer_event(self, player):
-        answer_index = self.prompt_answer(player).answer_index
+        answer_index = self.prompt_answer(player).index
         self.process_answer(answer_index, player)
         self.discard_pile.push_card(self.played_card)
         self.played_card = None
     
     def prompt_answer(self, player):
-        return self.input_provider.answer_question(self.played_card, player)
+        return self.input_provider.get_answer_selection(self.played_card, player)
     
     def process_answer(self, answer_index, player):
         if self.played_card.validate_answer(answer_index):
@@ -162,8 +162,8 @@ class GameEngine:
         pass
     
     def get_player_card_from_input(self, player):
-        card_input = self.input_provider.get_action(player)
-        card_index = card_input.card_index
+        card_input = self.input_provider.get_card_selection(player)
+        card_index = card_input.index
         if card_index is None:
             return None
         card = player.get_card(card_index)
