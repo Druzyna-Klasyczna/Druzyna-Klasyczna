@@ -1,23 +1,11 @@
-// src/hooks/useLobby.ts
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Typy dopasowane do Twojego backendu
-export interface Player {
-  player_id: string;
-  name: string;
-  is_ready: boolean;
-  is_host: boolean;
-}
-
-export interface Room {
-  room_code: string;
-  status: string;
-  players: Record<string, Player>;
-  settings: {
-    deck_id: string;
-  };
-}
+import { WS_BASE_URL } from "../lib/config";
+import type {
+  LobbyClientAction,
+  LobbyServerEvent,
+  Room,
+} from "../types/api";
 
 export const useLobby = (roomCode: string | null, playerId: string | null) => {
   const [room, setRoom] = useState<Room | null>(null);
@@ -27,16 +15,13 @@ export const useLobby = (roomCode: string | null, playerId: string | null) => {
   useEffect(() => {
     if (!roomCode || !playerId) return;
 
-    // Dynamiczna zamiana http:// na ws:// dla zmiennych środowiskowych
-    const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    const wsBase = apiBase.replace(/^http/, "ws");
-    const wsUrl = `${wsBase}/ws/lobby/${roomCode}/${playerId}`;
+    const socket = new WebSocket(
+      `${WS_BASE_URL}/ws/lobby/${roomCode}/${playerId}`,
+    );
+    ws.current = socket;
 
-    ws.current = new WebSocket(wsUrl);
-
-    ws.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
+    socket.onmessage = (event) => {
+      const data: LobbyServerEvent = JSON.parse(event.data);
       if (data.event === "ROOM_STATE_UPDATE") {
         setRoom(data.room);
       } else if (data.event === "GAME_STARTING") {
@@ -44,8 +29,7 @@ export const useLobby = (roomCode: string | null, playerId: string | null) => {
       }
     };
 
-    ws.current.onclose = (event) => {
-      // Kod 4000 to Twój customowy kod Kickowania z backendu
+    socket.onclose = (event) => {
       if (event.code === 4000) {
         alert("Zostałeś wyrzucony z pokoju!");
         navigate("/");
@@ -56,27 +40,20 @@ export const useLobby = (roomCode: string | null, playerId: string | null) => {
     };
 
     return () => {
-      // Zamknięcie gniazdka, gdy gracz wyjdzie z Lobby
-      if (ws.current) {
-        ws.current.close();
-      }
+      socket.close();
+      ws.current = null;
     };
   }, [roomCode, playerId, navigate]);
 
-  // --- FUNKCJE AKCJI ---
-  const toggleReady = () => {
-    ws.current?.send(JSON.stringify({ action: "TOGGLE_READY" }));
+  const send = (message: LobbyClientAction) => {
+    ws.current?.send(JSON.stringify(message));
   };
 
-  const kickPlayer = (targetId: string) => {
-    ws.current?.send(
-      JSON.stringify({ action: "KICK_PLAYER", target_id: targetId }),
-    );
+  return {
+    room,
+    toggleReady: () => send({ action: "TOGGLE_READY" }),
+    kickPlayer: (targetId: string) =>
+      send({ action: "KICK_PLAYER", target_id: targetId }),
+    startGame: () => send({ action: "START_GAME" }),
   };
-
-  const startGame = () => {
-    ws.current?.send(JSON.stringify({ action: "START_GAME" }));
-  };
-
-  return { room, toggleReady, kickPlayer, startGame };
 };

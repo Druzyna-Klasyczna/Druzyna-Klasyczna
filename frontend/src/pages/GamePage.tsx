@@ -1,78 +1,75 @@
 import { useState } from "react";
 import { TactileContainer } from "../components/TactileContainer";
 
-function GamePage() {
-  // Tymczasowy stan trzymający po prostu nazwę karty (tekst)
+const PLACEHOLDER_HAND = ["Karta 1", "Karta 2", "Karta 3", "Karta 4", "Karta 5"];
+
+const GamePage = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-  // Zwykła tablica z nazwami kart do testów
-  const myHand = ["Karta 1", "Karta 2", "Karta 3", "Karta 4", "Karta 5"];
-
   return (
-    <div className="h-screen w-full bg-[#e53935] p-6 flex flex-col gap-6 overflow-hidden font-bold">
-      
-      {/* --- GÓRNA CZĘŚĆ (3 KOLUMNY) --- */}
-      <div className="flex-1 grid grid-cols-4 gap-8 min-h-0">
-        
-        {/* LEWA KOLUMNA (Lista graczy) - 1/4 */}
-        <div className="col-span-1 h-full flex">
-          <TactileContainer className="w-full h-full !flex-col !items-stretch !justify-start">
-            <h2 className="text-white text-2xl mb-4 uppercase border-b-4 border-black pb-2">Players</h2>
-            <div className="text-gray-400 italic">Lista graczy pojawi się tutaj...</div>
-          </TactileContainer>
-        </div>
+    <div className="flex h-screen w-full flex-col gap-6 overflow-hidden bg-[#e53935] p-6 font-bold">
+      <div className="grid min-h-0 flex-1 grid-cols-4 gap-8">
+        <TactileContainer className="!flex-col !items-stretch !justify-start">
+          <h2 className="mb-4 border-b-4 border-black pb-2 text-2xl uppercase text-white">
+            Players
+          </h2>
+          <div className="italic text-gray-400">
+            Lista graczy pojawi się tutaj...
+          </div>
+        </TactileContainer>
 
-        {/* ŚRODKOWA KOLUMNA (Stół gry) - 2/4 (Dwa razy szersza) */}
-        <div className="col-span-2 h-full flex">
-          <TactileContainer className="w-full h-full !flex-col !items-center !justify-center relative">
-            <h2 className="absolute top-4 left-4 text-white text-xl uppercase">Main Table</h2>
-            <div className="w-32 h-32 rounded-full border-4 border-black bg-yellow-400 flex items-center justify-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-black">
-              Deck
+        <TactileContainer className="relative col-span-2 !flex-col !items-center !justify-center">
+          <h2 className="absolute left-4 top-4 text-xl uppercase text-white">
+            Main Table
+          </h2>
+          <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-black bg-yellow-400 text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+            Deck
+          </div>
+        </TactileContainer>
+
+        <TactileContainer className="!flex-col !items-stretch !justify-start">
+          <h2 className="mb-4 border-b-4 border-black pb-2 text-center text-xl uppercase text-white">
+            Card Preview
+          </h2>
+          {hoveredCard ? (
+            <div className="flex h-full flex-col items-center justify-center text-white">
+              <h3 className="text-center text-4xl font-black text-yellow-400">
+                {hoveredCard}
+              </h3>
+              <p className="mt-4 text-center text-gray-300">
+                To jest tymczasowy podgląd. Szczegóły pojawią się później.
+              </p>
             </div>
-          </TactileContainer>
-        </div>
-
-        {/* PRAWA KOLUMNA (Podgląd karty) - 1/4 */}
-        <div className="col-span-1 h-full flex">
-          <TactileContainer className="w-full h-full !flex-col !items-stretch !justify-start">
-            <h2 className="text-white text-xl mb-4 uppercase text-center border-b-4 border-black pb-2">Card Preview</h2>
-            
-            {hoveredCard ? (
-              <div className="flex flex-col h-full text-white items-center justify-center">
-                <h3 className="text-4xl font-black text-yellow-400 text-center">{hoveredCard}</h3>
-                <p className="mt-4 text-gray-300 text-center">To jest tymczasowy podgląd. Szczegóły pojawią się później.</p>
-              </div>
-            ) : (
-              <div className="flex flex-grow items-center justify-center text-gray-500 font-bold text-xl text-center">
-                Wskaż kartę,<br/>aby zobaczyć podgląd
-              </div>
-            )}
-          </TactileContainer>
-        </div>
-
+          ) : (
+            <div className="flex flex-grow items-center justify-center text-center text-xl font-bold text-gray-500">
+              Wskaż kartę,
+              <br />
+              aby zobaczyć podgląd
+            </div>
+          )}
+        </TactileContainer>
       </div>
 
-      {/* --- DOLNA CZĘŚĆ (Ręka gracza) --- */}
-      <TactileContainer className="h-64 !flex-col !items-stretch !justify-end relative pb-2 pt-12">
-        <h2 className="absolute top-4 left-4 text-white text-xl uppercase">Your Hand</h2>
-        
-        <div className="flex items-end justify-center gap-4 h-full">
-          {/* Renderujemy proste placeholdery na podstawie tablicy myHand */}
-          {myHand.map((cardName) => (
-            <div 
-              key={cardName} 
-              className="w-32 h-48 border-[3px] border-black bg-yellow-400 rounded-md flex items-center justify-center text-black font-black text-center p-2 cursor-pointer transition-transform hover:-translate-y-8"
+      <TactileContainer className="relative h-64 !flex-col !items-stretch !justify-end pb-2 pt-12">
+        <h2 className="absolute left-4 top-4 text-xl uppercase text-white">
+          Your Hand
+        </h2>
+
+        <div className="flex h-full items-end justify-center gap-4">
+          {PLACEHOLDER_HAND.map((cardName) => (
+            <div
+              key={cardName}
               onMouseEnter={() => setHoveredCard(cardName)}
               onMouseLeave={() => setHoveredCard(null)}
+              className="flex h-48 w-32 cursor-pointer items-center justify-center rounded-md border-[3px] border-black bg-yellow-400 p-2 text-center font-black text-black transition-transform hover:-translate-y-8"
             >
               {cardName}
             </div>
           ))}
         </div>
       </TactileContainer>
-
     </div>
   );
-}
+};
 
 export default GamePage;
