@@ -44,7 +44,24 @@ function HomePage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <h1 className="text-6xl font-bold text-black mb-12 transition-all duration-300">
+            <style>
+                {`@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');`}
+            </style>
+
+            {/* 2. Applying the font directly via the style prop */}
+            <h1 
+                style={{ 
+                    fontFamily: "'Bungee', cursive",
+                    textShadow: `
+                        -1px -1px 0 #fff,  
+                        1px -1px 0 #fff,
+                        -1px  1px 0 #fff,
+                        1px  1px 0 #fff,
+                        0px  10px 0px rgba(0,0,0,1)
+                    ` 
+                }}
+                className="text-6xl text-black mb-12 transition-all duration-300"
+            >
                 Card Clash
             </h1>
 
