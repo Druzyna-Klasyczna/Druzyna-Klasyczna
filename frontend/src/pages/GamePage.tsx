@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CardPreview } from "../components/game/CardPreview";
-import { GameLog } from "../components/game/GameLog";
 import { Hand } from "../components/game/Hand";
 import { PhaseBanner } from "../components/game/PhaseBanner";
 import { PlayersPanel } from "../components/game/PlayersPanel";
@@ -47,14 +46,13 @@ const GamePage = () => {
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-5 overflow-hidden bg-[#e53935] p-5 font-bold">
-      <div className="grid min-h-0 flex-1 grid-cols-[14rem_1fr_13rem_18rem] gap-5">
+      <div className="grid min-h-0 flex-1 grid-cols-[14rem_1fr_18rem] gap-5">
         <PlayersPanel
           players={state.players}
           currentPlayerId={cur?.id ?? null}
           pendingTargetId={state.pendingQuestion?.toPlayerId ?? null}
         />
         <RoundTable state={state} />
-        <GameLog log={state.log} />
         <CardPreview
           state={state}
           hoveredCard={hovered}
