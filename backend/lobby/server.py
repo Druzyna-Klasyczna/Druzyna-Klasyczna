@@ -4,8 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .RoomManager import lobby_manager
 import db.database as db
+import sqlite3
+from db.database import DB_NAME
 
 app = FastAPI()
+conn = sqlite3.connect(DB_NAME)
 
 # --- CRITICAL: CORS SETTINGS ---
 # This allows your React app to talk to this Python server
@@ -20,7 +23,15 @@ app.include_router(ws_router)
 
 @app.get("/debug/get-questions")
 def get_questions():
-    return db.fetch_all_questions()
+    return db.fetch_all_questions(conn)
+
+@app.get("/debug/get-decks")
+def get_decks():
+    return db.fetch_all_decks(conn)
+
+@app.get("/debug/get-deck-q-bind")
+def get_deck_q_bind():
+    return db.fetch_deck_relations(conn)
 
 class CreateRoomRequest(BaseModel):
     user_name: str
