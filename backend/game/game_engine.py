@@ -6,7 +6,11 @@ from card import QuestionCard, CardType, PowerUpType, EffectType
 from game_exceptions import WrongCardException, DrawPileEmptyException
 from event import GameEvent, EventType
 from collections import deque
+from lobby.models import Room
 import random
+import db.utils as dbutil
+import db.database as db
+import sqlite3
 
 
 class GameEngine:
@@ -20,15 +24,20 @@ class GameEngine:
 
         self.event_queue = deque([])
 
-        self.question_draw_pile = self.get_deck(room)
-        self.special_draw_pile = Deck()
-        self.discard_pile = Deck() # for now, maybe separate class later?
+
+        self.question_draw_pile = self.get_question_deck(room)
+        self.special_draw_pile = Deck([])
+        self.discard_pile = Deck([])
         self.played_card = None
 
         self.input_provider = WebsocketInputProvider()
     
-    def get_deck(self, room):
-        return Deck()
+    def get_question_deck(self, room):
+        self.dbconn = sqlite3.connect(db.DB_NAME)
+        deck_id, question_cards = dbutil.get_question_cards_from_random_deck(self.dbconn)
+        room.settings.deck_id = deck_id
+
+        return Deck(question_cards)
 
     async def run(self):
         await self.init_game()

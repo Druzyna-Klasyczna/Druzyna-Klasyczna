@@ -4,8 +4,8 @@ from card import QuestionCard, PowerUpCard, EffectCard, DebuffCard
 from card import PowerUpType, EffectType, DebuffType
 
 class Deck:
-    def __init__(self):
-        self.cards = self._generate_mock_deck()
+    def __init__(self, cards):
+        self.cards = cards 
     
     def _generate_mock_deck(self):
         cards = []
