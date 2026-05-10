@@ -74,8 +74,9 @@ class GameEngine:
             player.add_card(self.question_draw_pile.pop_card())
         
         for player in self.players:
+            if self.special_draw_pile.is_empty():
+                break
             player.add_card(self.special_draw_pile.pop_card())
-
 
     async def sync_private_hands(self):
         for player in self.players:
