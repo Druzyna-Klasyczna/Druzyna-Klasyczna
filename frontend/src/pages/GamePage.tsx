@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CardPreview } from "../components/game/CardPreview";
-import { GameLog } from "../components/game/GameLog";
 import { Hand } from "../components/game/Hand";
 import { PhaseBanner } from "../components/game/PhaseBanner";
 import { PlayersPanel } from "../components/game/PlayersPanel";
@@ -47,8 +46,6 @@ const GamePage = () => {
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-4 overflow-hidden bg-[#e53935] p-4 font-bold">
-      <GameLog entries={state.log} />
-
       <div className="grid min-h-0 flex-1 grid-cols-4 gap-4">
         <PlayersPanel
           players={state.players}

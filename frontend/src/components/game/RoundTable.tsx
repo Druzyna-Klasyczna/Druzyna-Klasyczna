@@ -1,5 +1,5 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-import type { GamePlayer, GameState, TurnPhase } from "../../types/game";
+import { RotateCcw, RotateCw } from "lucide-react";
+import type { GameState, TurnPhase } from "../../types/game";
 import { TactileContainer } from "../TactileContainer";
 import { PlayerSeat } from "./PlayerSeat";
 
@@ -15,63 +15,120 @@ interface RoundTableProps {
   state: GameState;
 }
 
+const SEAT_RADIUS_PCT = 40;
+const ARROW_RADIUS_PCT = 28;
+
+const polar = (angle: number, radiusPct: number) => ({
+  left: `${50 + Math.cos(angle) * radiusPct}%`,
+  top: `${50 + Math.sin(angle) * radiusPct}%`,
+});
+
+const seatAngle = (idx: number, total: number) =>
+  (idx / total) * Math.PI * 2 + Math.PI / 2;
+
 export const RoundTable = ({ state }: RoundTableProps) => {
-  const { players, currentPlayerIdx, direction, phase, pendingQuestion } =
+  const { players, currentPlayerIdx, direction, phase, pendingQuestion, log } =
     state;
+
+  const lastLog = log.slice(-4);
+  const RotateIcon = direction === 1 ? RotateCw : RotateCcw;
 
   return (
     <TactileContainer className="relative col-span-2 !flex-col !items-stretch !justify-center !p-0">
       <div className="relative h-full w-full overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-[#5a1f1d] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25)]">
-          <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3">
-            <div className="border-[3px] border-black bg-yellow-400 px-4 py-1 text-base font-black uppercase text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+        {/* Round table surface */}
+        <div className="absolute left-1/2 top-1/2 aspect-square w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-black bg-gradient-to-br from-[#7a2a26] to-[#3d1311] shadow-[inset_0_0_0_8px_rgba(0,0,0,0.25),inset_0_0_60px_rgba(0,0,0,0.6)]">
+          {/* Inner felt ring */}
+          <div className="absolute inset-[10%] rounded-full border-[3px] border-black/40 bg-[#5a1f1d]" />
+
+          {/* Wood grain rings (decorative) */}
+          <div className="pointer-events-none absolute inset-[18%] rounded-full border border-black/30" />
+          <div className="pointer-events-none absolute inset-[26%] rounded-full border border-black/20" />
+
+          {/* Direction arrows curving around inner table */}
+          {players.map((_, i) => {
+            const a = seatAngle(i, players.length) + (Math.PI / players.length) * direction;
+            const pos = polar(a, ARROW_RADIUS_PCT);
+            const rotateDeg = (a * 180) / Math.PI + (direction === 1 ? 90 : -90);
+            return (
+              <div
+                key={`arrow-${i}`}
+                className="absolute -translate-x-1/2 -translate-y-1/2 text-yellow-300/80"
+                style={{
+                  left: pos.left,
+                  top: pos.top,
+                  transform: `translate(-50%, -50%) rotate(${rotateDeg}deg)`,
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12 L19 12 M13 6 L19 12 L13 18"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            );
+          })}
+
+          {/* Center hub */}
+          <div className="absolute left-1/2 top-1/2 flex w-[58%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3">
+            {/* Table icon disc */}
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-[3px] border-black bg-yellow-400 shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+              <RotateIcon size={28} className="text-black" strokeWidth={3} />
+            </div>
+
+            {/* Phase chip */}
+            <div className="border-[3px] border-black bg-yellow-400 px-3 py-1 text-sm font-black uppercase text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
               {PHASE_LABEL[phase]}
             </div>
-            <div className="flex items-center gap-2 border-[3px] border-black bg-black px-3 py-1 text-xs font-black uppercase text-yellow-400">
-              {direction === 1 ? (
-                <>
-                  Kierunek <ArrowDown size={14} className="rotate-90" />
-                </>
-              ) : (
-                <>
-                  Kierunek <ArrowUp size={14} className="rotate-90" />
-                </>
-              )}
-            </div>
+
+            {/* Pending-question indicator */}
             {pendingQuestion && (
-              <div className="max-w-[16rem] border-[3px] border-black bg-rose-400 px-3 py-1 text-center text-[11px] font-black uppercase text-black">
-                Pytanie krąży:&nbsp;
+              <div className="max-w-[14rem] border-[3px] border-black bg-rose-400 px-3 py-1 text-center text-[11px] font-black uppercase text-black">
                 {players.find((p) => p.id === pendingQuestion.fromPlayerId)?.name}
                 &nbsp;→&nbsp;
                 {players.find((p) => p.id === pendingQuestion.toPlayerId)?.name}
               </div>
             )}
+
+            {/* In-table game log */}
+            <div className="flex w-full flex-col gap-1">
+              {lastLog.length === 0 ? (
+                <div className="text-center text-[11px] italic text-white/50">
+                  Cisza przy stole...
+                </div>
+              ) : (
+                lastLog.map((entry, i) => (
+                  <div
+                    key={`${log.length - lastLog.length + i}`}
+                    className={`border-2 border-black px-2 py-0.5 text-center text-[11px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${
+                      i === lastLog.length - 1
+                        ? "bg-yellow-300 text-black"
+                        : "bg-black/80 text-yellow-400"
+                    }`}
+                  >
+                    {entry}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
+        {/* Player avatars around the table */}
         {players.map((player, i) => (
           <PlayerSeat
             key={player.id}
             player={player}
             isCurrent={i === currentPlayerIdx}
             isPending={player.id === pendingQuestion?.toPlayerId}
-            style={seatStyle(i, players.length)}
+            style={polar(seatAngle(i, players.length), SEAT_RADIUS_PCT)}
           />
         ))}
       </div>
     </TactileContainer>
   );
 };
-
-// Position seats around the circle. Index 0 sits at bottom-center, others
-// rotate counter-clockwise so the local player is always closest to the hand.
-const seatStyle = (idx: number, total: number) => {
-  const angle = (idx / total) * Math.PI * 2 + Math.PI / 2;
-  const radiusPct = 38;
-  const left = 50 + Math.cos(angle) * radiusPct;
-  const top = 50 + Math.sin(angle) * radiusPct;
-  return { left: `${left}%`, top: `${top}%` };
-};
-
-export const findPlayerById = (players: GamePlayer[], id: string) =>
-  players.find((p) => p.id === id);
