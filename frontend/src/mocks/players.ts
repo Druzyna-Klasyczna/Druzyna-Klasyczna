@@ -20,3 +20,19 @@ export const makeMockPlayers = (myName: string): GamePlayer[] => {
 
   return [me];
 };
+
+export const makeNetworkedPlayers = (
+  roomPlayers: { id: string; name: string }[],
+  myId: string,
+  rng: () => number,
+): GamePlayer[] =>
+  roomPlayers.map((rp) => ({
+    id: rp.id,
+    name: rp.name,
+    avatarUrl: avatarUrl(rp.name || rp.id),
+    isMe: rp.id === myId,
+    hand: [
+      ...Array.from({ length: STARTING_QUESTIONS }, () => newQuestionCard(rng)),
+      newSupportCard(rng),
+    ],
+  }));

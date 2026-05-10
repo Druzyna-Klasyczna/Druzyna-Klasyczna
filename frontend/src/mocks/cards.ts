@@ -150,17 +150,17 @@ export const EFFECT_POOL: Omit<EffectCard, "id">[] = [
 export const SUPPORT_POOL: Omit<PowerUpCard | DebuffCard | EffectCard, "id">[] =
   [...POWER_UP_POOL, ...DEBUFF_POOL, ...EFFECT_POOL];
 
-export const newQuestionCard = (): QuestionCard => {
-  const tpl = QUESTION_POOL[Math.floor(Math.random() * QUESTION_POOL.length)];
+export const newQuestionCard = (rng: () => number = Math.random): QuestionCard => {
+  const tpl = QUESTION_POOL[Math.floor(rng() * QUESTION_POOL.length)];
   return { ...tpl, id: nextId("q") };
 };
 
-export const newSupportCard = () => {
-  const tpl = SUPPORT_POOL[Math.floor(Math.random() * SUPPORT_POOL.length)];
+export const newSupportCard = (rng: () => number = Math.random) => {
+  const tpl = SUPPORT_POOL[Math.floor(rng() * SUPPORT_POOL.length)];
   return { ...tpl, id: nextId("s") } as PowerUpCard | DebuffCard | EffectCard;
 };
 
-export const newPowerUpCard = (): PowerUpCard => {
-  const tpl = POWER_UP_POOL[Math.floor(Math.random() * POWER_UP_POOL.length)];
+export const newPowerUpCard = (rng: () => number = Math.random): PowerUpCard => {
+  const tpl = POWER_UP_POOL[Math.floor(rng() * POWER_UP_POOL.length)];
   return { ...tpl, id: nextId("p") };
 };

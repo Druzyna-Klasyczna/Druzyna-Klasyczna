@@ -94,9 +94,42 @@ async def lobby_websocket(websocket: WebSocket, room_code: str, player_id: str):
         lobby_manager.remove_player(room_code, player_id)
         if player_id in lobby_manager.active_connections:
             del lobby_manager.active_connections[player_id]
-            
+
         if lobby_manager.get_room(room_code):
             await lobby_manager.broadcast_to_room(room_code, {
-                "event": "ROOM_STATE_UPDATE", 
+                "event": "ROOM_STATE_UPDATE",
                 "room": lobby_manager.get_room(room_code).dict()
             })
+
+
+@router.websocket("/ws/game/{room_code}/{player_id}")
+async def game_websocket(websocket: WebSocket, room_code: str, player_id: str):
+    room = lobby_manager.get_room(room_code)
+
+    if not room or player_id not in room.players:
+        await websocket.close(code=4003)
+        return
+
+    await websocket.accept()
+    lobby_manager.active_connections[player_id] = websocket
+
+    await websocket.send_json({
+        "event": "ROOM_INFO",
+        "players": [
+            {"id": p.player_id, "name": p.name}
+            for p in room.players.values()
+        ],
+    })
+
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            for pid in list(room.players.keys()):
+                if pid == player_id:
+                    continue
+                conn = lobby_manager.active_connections.get(pid)
+                if conn:
+                    await conn.send_json(msg)
+    except WebSocketDisconnect:
+        if player_id in lobby_manager.active_connections:
+            del lobby_manager.active_connections[player_id]

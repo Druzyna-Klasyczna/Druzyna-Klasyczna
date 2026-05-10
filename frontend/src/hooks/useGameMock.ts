@@ -10,20 +10,33 @@ import type {
   PendingQuestion,
   PowerUpCard,
   QuestionCard,
+  SupportCard,
 } from "../types/game";
 
 const BASE_TIMER_MS = 30000;
 
-type Action =
-  | { type: "ANSWER_QUESTION"; idx: number }
-  | { type: "TIMEOUT" }
-  | { type: "PLAY_POWERUP"; cardId: string }
-  | { type: "PLAY_EFFECT"; cardId: string }
+export type Action =
+  | {
+      type: "ANSWER_QUESTION";
+      idx: number;
+      rewardCards?: SupportCard[];
+      penaltyCards?: QuestionCard[];
+      timeWarpDropId?: string;
+      roleReversalCards?: Card[];
+    }
+  | {
+      type: "TIMEOUT";
+      penaltyCards?: QuestionCard[];
+      roleReversalCards?: Card[];
+    }
+  | { type: "PLAY_POWERUP"; cardId: string; eliminate?: number[] }
+  | { type: "PLAY_EFFECT"; cardId: string; newOrder?: string[] }
   | { type: "SKIP_EFFECT" }
   | { type: "PLAY_QUESTION"; cardId: string; targetId: string }
   | { type: "ATTACH_DEBUFF"; cardId: string }
   | { type: "SKIP_DEBUFF" }
-  | { type: "RESTART"; myName: string };
+  | { type: "RESTART"; myName: string }
+  | { type: "INIT_GAME"; players: GamePlayer[] };
 
 const log = (state: GameState, msg: string): GameState => ({
   ...state,
@@ -76,7 +89,7 @@ const baseDurationMs = (state: GameState, debuff: DebuffCard | null): number => 
   return base;
 };
 
-const initialState = (myName: string): GameState => {
+export const initialState = (myName: string): GameState => {
   const players = makeMockPlayers(myName);
   return {
     players,
@@ -132,12 +145,26 @@ const winnerOrSame = (state: GameState): GameState => {
   return state;
 };
 
-const reducer = (state: GameState, action: Action): GameState => {
+export const reducer = (state: GameState, action: Action): GameState => {
   if (state.phase === "RESULT" && action.type !== "RESTART") return state;
 
   switch (action.type) {
     case "RESTART":
       return initialState(action.myName);
+
+    case "INIT_GAME":
+      return {
+        players: action.players,
+        currentPlayerIdx: 0,
+        direction: 1,
+        phase: "EFFECT",
+        pendingQuestion: null,
+        drawPileCount: 60,
+        log: ["Gra rozpoczęta!"],
+        winnerId: null,
+        effects: { timeRushTurnsLeft: 0 },
+        turnNumber: 1,
+      };
 
     case "ANSWER_QUESTION":
     case "TIMEOUT": {
@@ -157,15 +184,23 @@ const reducer = (state: GameState, action: Action): GameState => {
       const responderName = players[responderIdx].name;
 
       if (correct) {
-        const rewards: Card[] = Array.from({ length: multiplier }, () =>
-          newSupportCard(),
-        );
+        const rewardsAction =
+          action.type === "ANSWER_QUESTION" ? action.rewardCards : undefined;
+        const rewards: Card[] =
+          rewardsAction ??
+          Array.from({ length: multiplier }, () => newSupportCard());
         players = addCards(players, responderIdx, rewards);
         if (debuff?.type === "TIME_WARP") {
+          const timeWarpDropId =
+            action.type === "ANSWER_QUESTION" ? action.timeWarpDropId : undefined;
           const responder = players[responderIdx];
           const questions = responder.hand.filter((c) => c.kind === "QUESTION");
-          if (questions.length > 0) {
-            const drop = questions[Math.floor(Math.random() * questions.length)];
+          const drop = timeWarpDropId
+            ? questions.find((c) => c.id === timeWarpDropId)
+            : questions.length > 0
+              ? questions[Math.floor(Math.random() * questions.length)]
+              : null;
+          if (drop) {
             players = players.map((p, i) =>
               i === responderIdx
                 ? { ...p, hand: p.hand.filter((c) => c.id !== drop.id) }
@@ -174,16 +209,23 @@ const reducer = (state: GameState, action: Action): GameState => {
           }
         }
         if (roleReversal) {
-          players = addCards(players, askerIdx, [newSupportCard()]);
+          const reversalAction =
+            action.type === "ANSWER_QUESTION"
+              ? action.roleReversalCards
+              : undefined;
+          const reversal: Card[] = reversalAction ?? [newSupportCard()];
+          players = addCards(players, askerIdx, reversal);
         }
       } else {
-        const penalty: QuestionCard[] = Array.from(
-          { length: multiplier },
-          () => newQuestionCard(),
-        );
+        const penaltyAction = action.penaltyCards;
+        const penalty: QuestionCard[] =
+          penaltyAction ??
+          Array.from({ length: multiplier }, () => newQuestionCard());
         players = addCards(players, responderIdx, penalty);
         if (roleReversal) {
-          players = addCards(players, askerIdx, [newQuestionCard()]);
+          const reversalAction = action.roleReversalCards;
+          const reversal: Card[] = reversalAction ?? [newQuestionCard()];
+          players = addCards(players, askerIdx, reversal);
         }
       }
 
@@ -258,12 +300,15 @@ const reducer = (state: GameState, action: Action): GameState => {
       }
 
       if (power.type === "FIFTY_FIFTY") {
-        const wrongIndices = pq.card.answers
-          .map((_, i) => i)
-          .filter((i) => i !== pq.card.correctIndex);
-        const eliminate = wrongIndices
-          .sort(() => Math.random() - 0.5)
-          .slice(0, Math.max(1, Math.floor(wrongIndices.length / 2)));
+        let eliminate = action.eliminate;
+        if (!eliminate) {
+          const wrongIndices = pq.card.answers
+            .map((_, i) => i)
+            .filter((i) => i !== pq.card.correctIndex);
+          eliminate = wrongIndices
+            .sort(() => Math.random() - 0.5)
+            .slice(0, Math.max(1, Math.floor(wrongIndices.length / 2)));
+        }
         return {
           ...next,
           pendingQuestion: { ...pq, eliminatedAnswers: eliminate },
@@ -287,7 +332,18 @@ const reducer = (state: GameState, action: Action): GameState => {
 
       if (card.type === "SHUFFLE") {
         const currentId = players[playerIdx].id;
-        const shuffled = [...players].sort(() => Math.random() - 0.5);
+        let shuffled: GamePlayer[];
+        if (action.newOrder && action.newOrder.length === players.length) {
+          const byId = new Map(players.map((p) => [p.id, p]));
+          shuffled = action.newOrder
+            .map((id) => byId.get(id))
+            .filter((p): p is GamePlayer => !!p);
+          if (shuffled.length !== players.length) {
+            shuffled = [...players].sort(() => Math.random() - 0.5);
+          }
+        } else {
+          shuffled = [...players].sort(() => Math.random() - 0.5);
+        }
         players = shuffled;
         currentPlayerIdx = indexById(shuffled, currentId);
       } else if (card.type === "TAX") {
