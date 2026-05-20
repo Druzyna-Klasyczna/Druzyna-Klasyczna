@@ -7,8 +7,8 @@
 ## 🎯 Cel gry
 Głównym celem gry jest pozbycie się z ręki wszystkich posiadanych **kart z pytaniami**.
 
----
 
+![Game demo screenshot](game_screen.png)
 ## 🛠 Mechanika Rozgrywki
 
 ### Przygotowanie (Setup)
